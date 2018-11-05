@@ -17,6 +17,9 @@ var (
 	dbPass     string
 	redisAddr  string
 	redisPass  string
+	adminLogin string
+	adminPass  string
+	jwtSecret  string
 )
 
 var RootCmd = &cobra.Command{
@@ -36,6 +39,9 @@ var serveCmd = &cobra.Command{
 			DBPassword:    dbPass,
 			RedisAddr:     redisAddr,
 			RedisPassword: redisPass,
+			AdminLogin:    adminLogin,
+			AdminPassword: adminPass,
+			JWTSecret:     jwtSecret,
 		}
 		logger := src.NewLogger(logVerbose)
 		server := src.NewServer(logger, config).Routes()
@@ -66,4 +72,10 @@ func init() {
 		"redis:6379", "Set redis address")
 	serveCmd.Flags().StringVarP(&redisPass, "redispass", "b",
 		"", "Set redis address")
+	serveCmd.Flags().StringVarP(&adminLogin, "adminlogin", "l",
+		"admin", "Set default admin login")
+	serveCmd.Flags().StringVarP(&adminPass, "adminpass", "x",
+		"admin", "Set default admin pass")
+	serveCmd.Flags().StringVarP(&jwtSecret, "jwt", "j",
+		"veryverysecret", "Set jwt secret")
 }

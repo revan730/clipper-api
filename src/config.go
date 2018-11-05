@@ -10,4 +10,7 @@ type Config struct {
 	DBPassword    string
 	RedisAddr     string
 	RedisPassword string
+	AdminLogin    string
+	AdminPassword string
+	JWTSecret     string
 }

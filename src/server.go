@@ -1,7 +1,6 @@
 package src
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,6 +14,8 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/julienschmidt/httprouter"
 	"go.uber.org/zap"
+	jwt "github.com/dgrijalva/jwt-go"
+	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 
 	"github.com/go-redis/redis"
 	"github.com/revan730/diploma-server/db"
@@ -27,6 +28,24 @@ type Server struct {
 	redisClient    *redis.Client
 	databaseClient *db.DatabaseClient
 	router         *httprouter.Router
+}
+
+func JWTMiddlewareFromHandler(handlerF http.HandlerFunc, secret []byte) http.HandlerFunc {
+	// TODO: Json error handler
+	var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			return secret, nil
+		},
+		SigningMethod: jwt.SigningMethodHS256,
+	})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := jwtMiddleware.CheckJWT(w, r)
+
+		if err != nil {
+			return
+		}
+		handlerF(w, r)
+	})
 }
 
 func NewServer(logger *zap.Logger, config *Config) *Server {
@@ -44,7 +63,7 @@ func NewServer(logger *zap.Logger, config *Config) *Server {
 	if err != nil {
 		panic(err)
 	}
-	dbClient := db.NewDBClient(config.DBAddr, config.DB, config.DBUser, config.DBPassword)
+	dbClient := db.NewDBClient(config.DBAddr, config.DB, config.DBUser, config.DBPassword, config.AdminLogin, config.AdminPassword)
 	server.redisClient = redisClient
 	server.databaseClient = dbClient
 	return server
@@ -61,8 +80,10 @@ func (s *Server) logInfo(msg string) {
 }
 
 func (s *Server) Routes() *Server {
+	jwtSecret := []byte(s.config.JWTSecret)
 	s.router.POST("/api/v1/login", s.LoginHandler)
 	s.router.POST("/api/v1/register", s.RegisterHandler)
+	s.router.HandlerFunc("POST","/api/v1/setsecret", JWTMiddlewareFromHandler(s.SetSecretHandler, jwtSecret))
 	return s
 }
 
@@ -136,13 +157,18 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request, p httprout
 		return
 	}
 
-	// Generate user token and save to redis
-	tokenBytes := make([]byte, 8)
-	rand.Read(tokenBytes)
-	authToken := base64.StdEncoding.EncodeToString(tokenBytes)
-	s.redisClient.Set(authToken, user.Id, 6*time.Hour).Result()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"admin": user.IsAdmin,
+		"user": user.Login,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
 
-	s.writeResponse(w, &map[string]string{"token": authToken}, http.StatusOK)
+	tokenString, err := token.SignedString([]byte(s.config.JWTSecret))
+	if err != nil {
+		s.logError("jwt error", err)
+	}
+
+	s.writeResponse(w, &map[string]string{"token": tokenString}, http.StatusOK)
 }
 
 func (s *Server) RegisterHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -158,7 +184,7 @@ func (s *Server) RegisterHandler(w http.ResponseWriter, r *http.Request, p httpr
 		s.writeResponse(w, &map[string]string{"err": "Empty login or password"}, http.StatusBadRequest)
 		return
 	}
-	err = s.databaseClient.CreateUser(registerMsg.Login, registerMsg.Password)
+	err = s.databaseClient.CreateUser(registerMsg.Login, registerMsg.Password, false)
 	if err != nil {
 		// TODO: Maybe move this error handling to CreateUser func?
 		pgErr, ok := err.(pg.Error)
@@ -170,5 +196,43 @@ func (s *Server) RegisterHandler(w http.ResponseWriter, r *http.Request, p httpr
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	s.writeResponse(w, &map[string]interface{}{"err": nil}, http.StatusOK)
+}
+
+func (s *Server) SetSecretHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: Implement
+	// Hint: token claims can be retreived from context
+	var secretMsg types.WebhookSecretMessage
+	err := readJSON(r.Body, &secretMsg)
+	if err != nil {
+		s.logError("JSON read error", err)
+		s.writeResponse(w, &map[string]string{"err": "Bad json"}, http.StatusBadRequest)
+		return
+	}
+	if secretMsg.Secret == "" {
+		s.writeResponse(w, &map[string]string{"err": "secret not provided"}, http.StatusBadRequest)
+		return
+	}
+	// TODO: Extract function to get claim by name
+	jwtToken := r.Context().Value("user")
+	claims := jwtToken.(*jwt.Token).Claims.(jwt.MapClaims)
+	login := claims["user"].(string)
+	user, err := s.databaseClient.FindUser(login)
+	if err != nil {
+		s.logError("Find user error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if user == nil {
+		s.writeResponse(w, &map[string]string{"err": "user not found"}, http.StatusUnauthorized)
+		return
+	}
+	user.WebhookSecret = secretMsg.Secret
+	err = s.databaseClient.SaveUser(user)
+	if err != nil {
+		s.logError("User save error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	s.writeResponse(w, &map[string]interface{}{"err": nil}, http.StatusOK)
 }

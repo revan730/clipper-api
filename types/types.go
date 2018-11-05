@@ -5,9 +5,11 @@ import (
 )
 
 type User struct {
-	Id       int64  `json:"-"`
-	Login    string `sql:",unique" json:"-"`
-	Password string `json:"-"`
+	Id            int64  `json:"-"`
+	Login         string `sql:",unique" json:"-"`
+	Password      string `json:"-"`
+	IsAdmin       bool   `json:"-" sql:"default:false"`
+	WebhookSecret string `json:"-" sql:"default:''"`
 }
 
 func (u User) Authenticate(password string) bool {
@@ -18,4 +20,8 @@ func (u User) Authenticate(password string) bool {
 type CredentialsMessage struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
+}
+
+type WebhookSecretMessage struct {
+	Secret string `json:"secret"`
 }

@@ -8,11 +8,16 @@ import (
 )
 
 type DatabaseClient struct {
-	pg *pg.DB
+	pg         *pg.DB
+	adminLogin string
+	adminPass  string
 }
 
-func NewDBClient(addr, db, user, pass string) *DatabaseClient {
-	DBClient := &DatabaseClient{}
+func NewDBClient(addr, db, user, pass, aLogin, aPass string) *DatabaseClient {
+	DBClient := &DatabaseClient{
+		adminLogin: aLogin,
+		adminPass:  aPass,
+	}
 	pgdb := pg.Connect(&pg.Options{
 		User:         user,
 		Addr:         addr,
@@ -28,6 +33,18 @@ func (d *DatabaseClient) Close() {
 	d.pg.Close()
 }
 
+func (d *DatabaseClient) createFirstAdmin() error {
+	// Check if first admin exists
+	user, err := d.FindUser(d.adminLogin)
+	if err != nil {
+		return err
+	}
+	if user != nil {
+		return nil
+	}
+	return d.CreateUser(d.adminLogin, d.adminPass, true)
+}
+
 // CreateSchema creates database tables if they not exist
 func (d *DatabaseClient) CreateSchema() error {
 	for _, model := range []interface{}{(*types.User)(nil)} {
@@ -38,7 +55,8 @@ func (d *DatabaseClient) CreateSchema() error {
 			return err
 		}
 	}
-	return nil
+	// Create default admin user
+	return d.createFirstAdmin()
 }
 
 func HashPassword(password string) (string, error) {
@@ -46,7 +64,7 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func (d *DatabaseClient) CreateUser(login, pass string) error {
+func (d *DatabaseClient) CreateUser(login, pass string, isAdmin bool) error {
 	hash, err := HashPassword(pass)
 	if err != nil {
 		return err
@@ -54,6 +72,7 @@ func (d *DatabaseClient) CreateUser(login, pass string) error {
 	user := &types.User{
 		Login:    login,
 		Password: hash,
+		IsAdmin:  isAdmin,
 	}
 
 	return d.pg.Insert(user)
@@ -72,6 +91,9 @@ func (d *DatabaseClient) FindUser(login string) (*types.User, error) {
 		Where("login = ?", login).
 		Select()
 	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	} else {
 		return user, nil
