@@ -13,16 +13,16 @@ type DatabaseClient struct {
 	adminPass  string
 }
 
-func NewDBClient(addr, db, user, pass, aLogin, aPass string) *DatabaseClient {
+func NewDBClient(config types.Config) *DatabaseClient {
 	DBClient := &DatabaseClient{
-		adminLogin: aLogin,
-		adminPass:  aPass,
+		adminLogin: config.AdminLogin,
+		adminPass:  config.AdminPassword,
 	}
 	pgdb := pg.Connect(&pg.Options{
-		User:         user,
-		Addr:         addr,
-		Password:     pass,
-		Database:     db,
+		User:         config.DBUser,
+		Addr:         config.DBAddr,
+		Password:     config.DBPassword,
+		Database:     config.DB,
 		MinIdleConns: 2,
 	})
 	DBClient.pg = pgdb
@@ -102,13 +102,81 @@ func (d *DatabaseClient) FindUser(login string) (*types.User, error) {
 
 func (d *DatabaseClient) FindUserById(userId int64) (*types.User, error) {
 	user := &types.User{
-		Id: userId,
+		ID: userId,
 	}
 
 	err := d.pg.Select(user)
 	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	} else {
 		return user, nil
 	}
+}
+
+func (d *DatabaseClient) CreateRepo(fullName string, ownerID int64) error {
+	repo := &types.GithubRepo{
+		FullName: fullName,
+		OwnerID:  ownerID,
+	}
+
+	return d.pg.Insert(repo)
+}
+
+func (d *DatabaseClient) SaveRepo(repo *types.GithubRepo) error {
+	return d.pg.Update(repo)
+}
+
+func (d *DatabaseClient) FindRepoByName(fullName string) (*types.GithubRepo, error) {
+	repo := &types.GithubRepo{
+		FullName: fullName,
+	}
+
+	err := d.pg.Model(repo).
+		Where("full_name = ?", fullName).
+		Select()
+	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	} else {
+		return repo, nil
+	}
+}
+
+func (d *DatabaseClient) FindRepoByID(repoID int64) (*types.GithubRepo, error) {
+	repo := &types.GithubRepo{
+		ID: repoID,
+	}
+
+	err := d.pg.Select(repo)
+	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	} else {
+		return repo, nil
+	}
+}
+
+func (d *DatabaseClient) DeleteRepoById(repoID int64) error {
+	repo := &types.GithubRepo{
+		ID: repoID,
+	}
+
+	return d.pg.Delete(repo)
+}
+
+func (d *DatabaseClient) FindAllUserRepos(userID int64) ([]types.GithubRepo, error) {
+	var repos []types.GithubRepo
+
+	err := d.pg.Model(&repos).
+		Where("owner_id = ?", userID).
+		Select()
+
+	return repos, err
 }

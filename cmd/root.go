@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/revan730/diploma-server/src"
+	"github.com/revan730/diploma-server/types"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +32,7 @@ var serveCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start server",
 	Run: func(cmd *cobra.Command, args []string) {
-		config := &src.Config{
+		config := &types.Config{
 			Port:          serverPort,
 			DBAddr:        dbAddr,
 			DB:            db,

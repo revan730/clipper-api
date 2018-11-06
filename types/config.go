@@ -1,4 +1,4 @@
-package src
+package types
 
 // Config represents configuration for application
 type Config struct {
