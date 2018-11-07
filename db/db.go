@@ -47,7 +47,9 @@ func (d *DatabaseClient) createFirstAdmin() error {
 
 // CreateSchema creates database tables if they not exist
 func (d *DatabaseClient) CreateSchema() error {
-	for _, model := range []interface{}{(*types.User)(nil)} {
+	for _, model := range []interface{}{(*types.User)(nil),
+		(*types.GithubRepo)(nil),
+		(*types.BranchConfig)(nil)} {
 		err := d.pg.CreateTable(model, &orm.CreateTableOptions{
 			IfNotExists: true,
 		})
@@ -163,7 +165,7 @@ func (d *DatabaseClient) FindRepoByID(repoID int64) (*types.GithubRepo, error) {
 	}
 }
 
-func (d *DatabaseClient) DeleteRepoById(repoID int64) error {
+func (d *DatabaseClient) DeleteRepoByID(repoID int64) error {
 	repo := &types.GithubRepo{
 		ID: repoID,
 	}

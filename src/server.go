@@ -10,9 +10,10 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
-	"github.com/julienschmidt/httprouter"
 	"go.uber.org/zap"
 	jwt "github.com/dgrijalva/jwt-go"
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
@@ -28,10 +29,10 @@ type Server struct {
 	config         *types.Config
 	redisClient    *redis.Client
 	databaseClient *db.DatabaseClient
-	router         *httprouter.Router
+	router         *gin.Engine
 }
 
-func JWTMiddlewareFromHandler(handlerF http.HandlerFunc, secret []byte) http.HandlerFunc {
+func jwtMiddleware(secret []byte) gin.HandlerFunc {
 	// TODO: Json error handler
 	var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
@@ -39,20 +40,19 @@ func JWTMiddlewareFromHandler(handlerF http.HandlerFunc, secret []byte) http.Han
 		},
 		SigningMethod: jwt.SigningMethodHS256,
 	})
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err := jwtMiddleware.CheckJWT(w, r)
-
+	return func(c *gin.Context) {
+		err := jwtMiddleware.CheckJWT(c.Writer, c.Request)
 		if err != nil {
 			return
 		}
-		handlerF(w, r)
-	})
+		c.Next()
+	}
 }
 
 func NewServer(logger *zap.Logger, config *types.Config) *Server {
 	server := &Server{
 		logger: logger,
-		router: httprouter.New(),
+		router: gin.Default(),
 		config: config,
 	}
 	redisClient := redis.NewClient(&redis.Options{
@@ -81,13 +81,19 @@ func (s *Server) logInfo(msg string) {
 }
 
 func (s *Server) Routes() *Server {
-	jwtSecret := []byte(s.config.JWTSecret)
 	s.router.POST("/api/v1/login", s.LoginHandler)
 	s.router.POST("/api/v1/register", s.RegisterHandler)
-	s.router.HandlerFunc("POST","/api/v1/user/setsecret", JWTMiddlewareFromHandler(s.SetSecretHandler, jwtSecret))
-	s.router.HandlerFunc("POST", "/api/v1/repos", JWTMiddlewareFromHandler(s.PostRepoHandler, jwtSecret))
-	s.router.HandlerFunc("GET", "/api/v1/repos/:id", JWTMiddlewareFromHandler(s.GetRepoHandler, jwtSecret))
-	s.router.HandlerFunc("DELETE", "/api/v1/repos", JWTMiddlewareFromHandler(s.DeleteRepoHandler, jwtSecret))
+
+	jwtSecret := []byte(s.config.JWTSecret)
+	authorized := s.router.Group("/")
+	authorized.Use(jwtMiddleware(jwtSecret))
+	{
+		authorized.POST("/api/v1/user/secret", s.SetSecretHandler)
+		authorized.POST("/api/v1/repos", s.PostRepoHandler)
+		authorized.GET("/api/v1/repos", s.GetAllReposHandler)
+		authorized.GET("/api/v1/repos/:id", s.GetRepoHandler)
+		authorized.DELETE("/api/v1/repos/:id", s.DeleteRepoHandler)
+	}
 	return s
 }
 
@@ -134,35 +140,36 @@ func (s *Server) Run() {
 	}
 }
 
-func (s *Server) bindJSON(w http.ResponseWriter, r *http.Request, msg interface{}) {
-	err := readJSON(r.Body, &msg)
+func (s *Server) bindJSON(c *gin.Context, msg interface{}) bool {
+	err := c.ShouldBindJSON(&msg)
 	if err != nil {
 		s.logError("JSON read error", err)
-		s.writeResponse(w, &map[string]string{"err": "Bad json"}, http.StatusBadRequest)
-		return
+		c.JSON(http.StatusBadRequest, gin.H{"err": "Bad json"})
+		return false
 	}
+	return true
 }
 
-func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (s *Server) LoginHandler(c *gin.Context) {
 	// Check if login and password are provided
 	loginMsg := &types.CredentialsMessage{}
-	s.bindJSON(w, r, loginMsg)
+	s.bindJSON(c, loginMsg)
 	if loginMsg.Login == "" || loginMsg.Password == "" {
-		s.writeResponse(w, &map[string]string{"err": "Empty login or password"}, http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"err": "Empty login or password"})
 		return
 	}
 	user, err := s.databaseClient.FindUser(loginMsg.Login)
 	if err != nil {
 		s.logError("Find user error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if user == nil {
-		s.writeResponse(w, &map[string]string{"err": "Failed to login"}, http.StatusUnauthorized)
+		c.JSON(http.StatusBadRequest, gin.H{"err": "Failed to login"})
 		return
 	}
 	if user.Authenticate(loginMsg.Password) == false {
-		s.writeResponse(w, &map[string]string{"err": "Failed to login"}, http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"err": "Failed to login"})
 		return
 	}
 
@@ -178,15 +185,15 @@ func (s *Server) LoginHandler(w http.ResponseWriter, r *http.Request, p httprout
 		s.logError("jwt error", err)
 	}
 
-	s.writeResponse(w, &map[string]string{"token": tokenString}, http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
 
-func (s *Server) RegisterHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (s *Server) RegisterHandler(c *gin.Context) {
 	// Check if login and password are provided
 	registerMsg := &types.CredentialsMessage{}
-	s.bindJSON(w, r, registerMsg)
+	s.bindJSON(c, registerMsg)
 	if registerMsg.Login == "" || registerMsg.Password == "" {
-		s.writeResponse(w, &map[string]string{"err": "Empty login or password"}, http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"err": "Empty login or password"})
 		return
 	}
 	err := s.databaseClient.CreateUser(registerMsg.Login, registerMsg.Password, false)
@@ -194,66 +201,80 @@ func (s *Server) RegisterHandler(w http.ResponseWriter, r *http.Request, p httpr
 		// TODO: Maybe move this error handling to CreateUser func?
 		pgErr, ok := err.(pg.Error)
 		if ok && pgErr.IntegrityViolation() {
-			s.writeResponse(w, &map[string]string{"err": "User already exists"}, http.StatusBadRequest)
+			c.JSON(http.StatusBadRequest, gin.H{"err": "User already exists"})
 			return
 		}
 		s.logError("Create user error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	s.writeResponse(w, &map[string]interface{}{"err": nil}, http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-func (s *Server) GetClaimByName(r *http.Request, name string) interface{} {
-	jwtToken := r.Context().Value("user")
+func (s *Server) GetClaimByName(c *gin.Context, name string) interface{} {
+	jwtToken := c.Request.Context().Value("user")
 	claims := jwtToken.(*jwt.Token).Claims.(jwt.MapClaims)
 	return claims[name]
 }
 
-func (s *Server) SetSecretHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) GetUserIDClaim(c *gin.Context) (int64, bool) {
+	userID, ok := s.GetClaimByName(c, "userID").(float64)
+	if ok == false {
+		s.logInfo("Failed to get userID claim")
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return 0, false
+	}
+	return int64(userID), true
+}
+
+func (s *Server) SetSecretHandler(c *gin.Context) {
 	secretMsg := &types.WebhookSecretMessage{}
-	s.bindJSON(w, r, secretMsg)
-	if secretMsg.Secret == "" {
-		s.writeResponse(w, &map[string]string{"err": "secret not provided"}, http.StatusBadRequest)
+	bound := s.bindJSON(c, secretMsg)
+	if bound == false {
 		return
 	}
-	login, ok := s.GetClaimByName(r, "user").(string)
+	if secretMsg.Secret == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "secret not provided"})
+		return
+	}
+	login, ok := s.GetClaimByName(c, "user").(string)
 	if ok != true {
 		s.logInfo("Failed to get login claim")
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	user, err := s.databaseClient.FindUser(login)
 	if err != nil {
 		s.logError("Find user error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if user == nil {
-		s.writeResponse(w, &map[string]string{"err": "user not found"}, http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"err": "user not found"})
 		return
 	}
 	user.WebhookSecret = secretMsg.Secret
 	err = s.databaseClient.SaveUser(user)
 	if err != nil {
 		s.logError("User save error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	s.writeResponse(w, &map[string]interface{}{"err": nil}, http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-func (s *Server) PostRepoHandler(w http.ResponseWriter, r *http.Request) {
-	userID, ok := s.GetClaimByName(r, "userID").(int64)
+func (s *Server) PostRepoHandler(c *gin.Context) {
+	userID, ok := s.GetUserIDClaim(c)
 	if ok != true {
-		s.logInfo("Failed to get userID claim")
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	repoMsg := &types.RepoMessage{}
-	s.bindJSON(w, r, repoMsg)
+	bound := s.bindJSON(c, repoMsg)
+	if bound == false {
+		return
+	}
 	if repoMsg.FullName == "" {
-		s.writeResponse(w, &map[string]string{"err": "repo name not provided"}, http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"err": "repo name not provided"})
 		return
 	}
 	err := s.databaseClient.CreateRepo(repoMsg.FullName, userID)
@@ -261,105 +282,99 @@ func (s *Server) PostRepoHandler(w http.ResponseWriter, r *http.Request) {
 		// TODO: Maybe move this error handling to CreateUser func?
 		pgErr, ok := err.(pg.Error)
 		if ok && pgErr.IntegrityViolation() {
-			s.writeResponse(w, &map[string]string{"err": "Repo already exists"}, http.StatusBadRequest)
+			c.JSON(http.StatusBadRequest, gin.H{"err": "Repo already exists"})
 			return
 		}
 		s.logError("Create repo error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	s.writeResponse(w, &map[string]interface{}{"err": nil}, http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-// TODO: Wtf am i doing, it should take repo id from path
-func (s *Server) GetRepoHandler(w http.ResponseWriter, r *http.Request) {
-	userID, ok := s.GetClaimByName(r, "userID").(int64)
+func (s *Server) GetRepoHandler(c *gin.Context) {
+	userID, ok := s.GetUserIDClaim(c)
 	if ok != true {
-		s.logInfo("Failed to get userID claim")
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	repoMsg := &types.RepoMessage{}
-	s.bindJSON(w, r, repoMsg)
-	if repoMsg.ID == 0 {
-		s.writeResponse(w, &map[string]string{"err": "repo id not provided"}, http.StatusBadRequest)
+	repoIDStr := c.Param("id")
+	repoID, err := strconv.Atoi(repoIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
 		return
 	}
-	repo, err := s.databaseClient.FindRepoByID(repoMsg.ID)
+	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
 	if err != nil {
 		s.logError("Find repo error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if repo == nil {
-		s.writeResponse(w, &map[string]string{"err": "repo not found"}, http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"err": "repo not provided"})
 		return
 	}
 	if repo.OwnerID != userID {
-		s.writeResponse(w, &map[string]string{"err": "you have no access to this repo"}, http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"err": "you have no access to this repo"})
 	}
-	s.writeResponse(w, repo, http.StatusOK)
+	c.JSON(http.StatusOK, repo)
 }
 
-func (s *Server) GetAllReposHandler(w http.ResponseWriter, r *http.Request) {
-	userID, ok := s.GetClaimByName(r, "userID").(int64)
+func (s *Server) GetAllReposHandler(c *gin.Context) {
+	userID, ok := s.GetUserIDClaim(c)
 	if ok != true {
-		s.logInfo("Failed to get userID claim")
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	repos, err := s.databaseClient.FindAllUserRepos(userID)
 	if err != nil {
 		s.logError("Find repos error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{"repos": repos})
 }
 
-func (s *Server) DeleteRepoHandler(w http.ResponseWriter, r *http.Request) {
-	userID, ok := s.GetClaimByName(r, "userID").(int64)
+func (s *Server) DeleteRepoHandler(c *gin.Context) {
+	userID, ok := s.GetUserIDClaim(c)
 	if ok != true {
-		s.logInfo("Failed to get userID claim")
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	repoMsg := &types.RepoMessage{}
-	s.bindJSON(w, r, repoMsg)
-	if repoMsg.ID == 0 {
-		s.writeResponse(w, &map[string]string{"err": "repo id not provided"}, http.StatusBadRequest)
+	repoIDStr := c.Param("id")
+	repoID, err := strconv.Atoi(repoIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
 		return
 	}
 	user, err := s.databaseClient.FindUserById(userID)
 	if err != nil {
 		s.logError("Find user error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if user == nil {
-		s.writeResponse(w, &map[string]string{"err": "no access"}, http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
 		return
 	}
-	repo, err := s.databaseClient.FindRepoByID(repoMsg.ID)
+	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
 	if err != nil {
 		s.logError("Find repo error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if repo == nil {
-		s.writeResponse(w, &map[string]string{"err": "repo not found"}, http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"err": "repo not provided"})
 		return
 	}
 	if user.IsAdmin == false {
 		if userID != repo.OwnerID {
-			s.writeResponse(w, &map[string]string{"err": "no access"}, http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
 		    return
 		}
 	}
-	err := s.databaseClient.DeleteRepoByID(repoMsg.ID)
+	err = s.databaseClient.DeleteRepoByID(int64(repoID))
 	if err != nil {
 		s.logError("Delete repo error", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	s.writeResponse(w, &map[string]interface{}{"err": nil}, http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
