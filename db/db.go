@@ -53,7 +53,8 @@ func (d *DatabaseClient) CreateSchema() error {
 		(*types.GithubRepo)(nil),
 		(*types.BranchConfig)(nil)} {
 		err := d.pg.CreateTable(model, &orm.CreateTableOptions{
-			IfNotExists: true,
+			IfNotExists:   true,
+			FKConstraints: true,
 		})
 		if err != nil {
 			return err
@@ -120,10 +121,10 @@ func (d *DatabaseClient) FindUserById(userId int64) (*types.User, error) {
 	}
 }
 
-func (d *DatabaseClient) CreateRepo(fullName string, ownerID int64) error {
+func (d *DatabaseClient) CreateRepo(fullName string, userID int64) error {
 	repo := &types.GithubRepo{
 		FullName: fullName,
-		OwnerID:  ownerID,
+		UserID:   userID,
 	}
 
 	return d.pg.Insert(repo)
@@ -180,7 +181,7 @@ func (d *DatabaseClient) FindAllUserRepos(userID int64, q url.Values) ([]types.G
 
 	err := d.pg.Model(&repos).
 		Apply(orm.Pagination(q)).
-		Where("owner_id = ?", userID).
+		Where("user_id = ?", userID).
 		Select()
 
 	return repos, err
@@ -193,7 +194,7 @@ func (d *DatabaseClient) CreateBranchConfig(c *types.BranchConfig) error {
 func (d *DatabaseClient) FindBranchConfig(repoID int64, branch string) (*types.BranchConfig, error) {
 	var c types.BranchConfig
 	err := d.pg.Model(&c).
-		Where("repo_id = ?", repoID).
+		Where("github_repo_id = ?", repoID).
 		Where("branch = ?", branch).
 		Select()
 	if err != nil {
@@ -227,7 +228,7 @@ func (d *DatabaseClient) FindAllBranchConfigs(repoID int64, q url.Values) ([]typ
 
 	err := d.pg.Model(&configs).
 		Apply(orm.Pagination(q)).
-		Where("repo_id = ?", repoID).
+		Where("github_repo_id = ?", repoID).
 		Select()
 
 	return configs, err

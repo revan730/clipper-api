@@ -275,8 +275,6 @@ func (s *Server) RegisterHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-
-
 func (s *Server) SetSecretHandler(c *gin.Context) {
 	secretMsg := &types.WebhookSecretMessage{}
 	bound := s.bindJSON(c, secretMsg)
@@ -352,7 +350,7 @@ func (s *Server) GetRepoHandler(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"err": "repo not provided"})
 		return
 	}
-	if repo.OwnerID != userClaim.ID {
+	if repo.UserID != userClaim.ID {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": "you have no access to this repo"})
 	}
 	c.JSON(http.StatusOK, repo)
@@ -377,6 +375,9 @@ func (s *Server) DeleteRepoHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
 		return
 	}
+	// TODO: Don't think this part is effective, as user who
+	// forges access tokens can simply know user's id from
+	// token itself, no need to guess
 	user, err := s.databaseClient.FindUserById(userClaim.ID)
 	if err != nil {
 		s.logError("Find user error", err)
@@ -398,7 +399,7 @@ func (s *Server) DeleteRepoHandler(c *gin.Context) {
 		return
 	}
 	if user.IsAdmin == false {
-		if userClaim.ID != repo.OwnerID {
+		if userClaim.ID != repo.UserID {
 			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
 		    return
 		}
@@ -431,6 +432,9 @@ func (s *Server) PostBranchConfigHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
 		return
 	}
+	// TODO: Probably this part must be overwritten as pg
+	// will return error on attemt to create config with non-existing
+	// repo id
 	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
 	if err != nil {
 		s.logError("Find repo error", err)
@@ -442,7 +446,7 @@ func (s *Server) PostBranchConfigHandler(c *gin.Context) {
 		return
 	}
 	if user.IsAdmin == false {
-		if userClaim.ID != repo.OwnerID {
+		if userClaim.ID != repo.UserID {
 			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
 		    return
 		}
@@ -468,7 +472,7 @@ func (s *Server) PostBranchConfigHandler(c *gin.Context) {
 		return
 	}
 	branchConf := types.BranchConfig{
-		RepoID: int64(repoID),
+		GithubRepoID: int64(repoID),
 		Branch: branchMsg.BranchName,
 		IsCiEnabled: true,
 	}
@@ -501,7 +505,7 @@ func (s *Server) GetAllBranchConfigsHandler(c *gin.Context) {
 		return
 	}
 	if userClaim.IsAdmin == false {
-		if userClaim.ID != repo.OwnerID {
+		if userClaim.ID != repo.UserID {
 			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
 		    return
 		}
@@ -536,7 +540,7 @@ func (s *Server) DeleteBranchConfigHandler(c *gin.Context) {
 		return
 	}
 	if userClaim.IsAdmin == false {
-		if userClaim.ID != repo.OwnerID {
+		if userClaim.ID != repo.UserID {
 			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
 		    return
 		}

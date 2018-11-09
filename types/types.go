@@ -16,15 +16,17 @@ type User struct {
 type GithubRepo struct {
 	ID       int64  `json:"repoID"`
 	FullName string `json:"fullName" sql:",unique"`
-	OwnerID  int64  `json:"-"`
+	UserID   int64  `json:"-" pg:",fk" sql:"on_delete:CASCADE"`
+	User     *User  `json:"-"`
 }
 
 // BranchConfig sets CI configuration for specific branch of repo
 type BranchConfig struct {
-	ID          int64  `json:"-"`
-	RepoID      int64  `json:"-"`
-	Branch      string `json:"branch"`
-	IsCiEnabled bool   `json:"ci_enabled"`
+	ID           int64       `json:"-"`
+	GithubRepoID int64       `json:"-" pg:",fk" sql:"on_delete:CASCADE"`
+	GithubRepo   *GithubRepo `json:"-"`
+	Branch       string      `json:"branch"`
+	IsCiEnabled  bool        `json:"ci_enabled"`
 }
 
 func (u User) Authenticate(password string) bool {
