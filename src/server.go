@@ -360,7 +360,7 @@ func (s *Server) GetRepoHandler(c *gin.Context) {
 
 func (s *Server) GetAllReposHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
-	repos, err := s.databaseClient.FindAllUserRepos(userClaim.ID)
+	repos, err := s.databaseClient.FindAllUserRepos(userClaim.ID, c.Request.URL.Query())
 	if err != nil {
 		s.logError("Find repos error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -506,7 +506,7 @@ func (s *Server) GetAllBranchConfigsHandler(c *gin.Context) {
 		    return
 		}
 	}
-	configs, err := s.databaseClient.FindAllBranchConfigs(repo.ID)
+	configs, err := s.databaseClient.FindAllBranchConfigs(repo.ID, c.Request.URL.Query())
 	if err != nil {
 		s.logError("Find branch configs error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -516,7 +516,6 @@ func (s *Server) GetAllBranchConfigsHandler(c *gin.Context) {
 }
 
 func (s *Server) DeleteBranchConfigHandler(c *gin.Context) {
-	// TODO: Implement
 	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)

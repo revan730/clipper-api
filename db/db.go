@@ -1,6 +1,8 @@
 package db
 
 import (
+	"net/url"
+
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"github.com/revan730/diploma-server/types"
@@ -173,10 +175,11 @@ func (d *DatabaseClient) DeleteRepoByID(repoID int64) error {
 	return d.pg.Delete(repo)
 }
 
-func (d *DatabaseClient) FindAllUserRepos(userID int64) ([]types.GithubRepo, error) {
+func (d *DatabaseClient) FindAllUserRepos(userID int64, q url.Values) ([]types.GithubRepo, error) {
 	var repos []types.GithubRepo
 
 	err := d.pg.Model(&repos).
+		Apply(orm.Pagination(q)).
 		Where("owner_id = ?", userID).
 		Select()
 
@@ -219,10 +222,11 @@ func (d *DatabaseClient) DeleteBranchConfigByID(configID int64) error {
 	return d.pg.Delete(c)
 }
 
-func (d *DatabaseClient) FindAllBranchConfigs(repoID int64) ([]types.BranchConfig, error) {
+func (d *DatabaseClient) FindAllBranchConfigs(repoID int64, q url.Values) ([]types.BranchConfig, error) {
 	var configs []types.BranchConfig
 
 	err := d.pg.Model(&configs).
+		Apply(orm.Pagination(q)).
 		Where("repo_id = ?", repoID).
 		Select()
 
