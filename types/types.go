@@ -21,9 +21,10 @@ type GithubRepo struct {
 
 // BranchConfig sets CI configuration for specific branch of repo
 type BranchConfig struct {
-	ID          int64
-	RepoID      int64
-	IsCiEnabled bool
+	ID          int64  `json:"-"`
+	RepoID      int64  `json:"-"`
+	Branch      string `json:"branch"`
+	IsCiEnabled bool   `json:"ci_enabled"`
 }
 
 func (u User) Authenticate(password string) bool {
@@ -43,4 +44,8 @@ type WebhookSecretMessage struct {
 type RepoMessage struct {
 	FullName string `json:"fullName"`
 	ID       int64  `json:"repoID"`
+}
+
+type BranchMessage struct {
+	BranchName string `json:"branch"`
 }

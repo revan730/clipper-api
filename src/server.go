@@ -49,6 +49,64 @@ func jwtMiddleware(secret []byte) gin.HandlerFunc {
 	}
 }
 
+func (s *Server) getClaimByName(c *gin.Context, name string) interface{} {
+	jwtToken := c.Request.Context().Value("user")
+	claims := jwtToken.(*jwt.Token).Claims.(jwt.MapClaims)
+	return claims[name]
+}
+
+func (s *Server) getUserLoginClaim(c *gin.Context) (string, bool) {
+	login, ok := s.getClaimByName(c, "user").(string)
+	if ok == false {
+		s.logInfo("Failed to get user login claim")
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return "", false
+	}
+	return login, true
+}
+
+func (s *Server) getUserIDClaim(c *gin.Context) (int64, bool) {
+	userID, ok := s.getClaimByName(c, "userID").(float64)
+	if ok == false {
+		s.logInfo("Failed to get userID claim")
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return 0, false
+	}
+	return int64(userID), true
+}
+
+func (s *Server) getUserAdminClaim(c *gin.Context) (bool, bool) {
+	isAdmin, ok := s.getClaimByName(c, "admin").(bool)
+	if ok == false {
+		s.logInfo("Failed to get user admin claim")
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return false, false
+	}
+	return isAdmin, true
+}
+
+func (s *Server) userClaimMiddleware(c *gin.Context) {
+	userID, ok := s.getUserIDClaim(c)
+	if ok == false {
+		return
+	}
+	login, ok := s.getUserLoginClaim(c)
+	if ok == false {
+		return
+	}
+	isAdmin, ok := s.getUserAdminClaim(c)
+	if ok == false {
+		return
+	}
+	user := types.User{
+		ID: userID,
+		IsAdmin: isAdmin,
+		Login: login,
+	}
+	c.Set("userClaim", user)
+	c.Next()
+}
+
 func NewServer(logger *zap.Logger, config *types.Config) *Server {
 	server := &Server{
 		logger: logger,
@@ -86,13 +144,19 @@ func (s *Server) Routes() *Server {
 
 	jwtSecret := []byte(s.config.JWTSecret)
 	authorized := s.router.Group("/")
-	authorized.Use(jwtMiddleware(jwtSecret))
+	authorized.Use(jwtMiddleware(jwtSecret), s.userClaimMiddleware)
 	{
+		// User
 		authorized.POST("/api/v1/user/secret", s.SetSecretHandler)
+		// Github repos
 		authorized.POST("/api/v1/repos", s.PostRepoHandler)
 		authorized.GET("/api/v1/repos", s.GetAllReposHandler)
 		authorized.GET("/api/v1/repos/:id", s.GetRepoHandler)
 		authorized.DELETE("/api/v1/repos/:id", s.DeleteRepoHandler)
+		// Repo configs
+		authorized.POST("/api/v1/repos/:id/branch", s.PostBranchConfigHandler)
+		authorized.GET("/api/v1/repos/:id/branch", s.GetAllBranchConfigsHandler)
+		authorized.DELETE("/api/v1/repos/:id/branch/:branch", s.DeleteBranchConfigHandler)
 	}
 	return s
 }
@@ -211,21 +275,7 @@ func (s *Server) RegisterHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-func (s *Server) GetClaimByName(c *gin.Context, name string) interface{} {
-	jwtToken := c.Request.Context().Value("user")
-	claims := jwtToken.(*jwt.Token).Claims.(jwt.MapClaims)
-	return claims[name]
-}
 
-func (s *Server) GetUserIDClaim(c *gin.Context) (int64, bool) {
-	userID, ok := s.GetClaimByName(c, "userID").(float64)
-	if ok == false {
-		s.logInfo("Failed to get userID claim")
-		c.Writer.WriteHeader(http.StatusInternalServerError)
-		return 0, false
-	}
-	return int64(userID), true
-}
 
 func (s *Server) SetSecretHandler(c *gin.Context) {
 	secretMsg := &types.WebhookSecretMessage{}
@@ -237,13 +287,8 @@ func (s *Server) SetSecretHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "secret not provided"})
 		return
 	}
-	login, ok := s.GetClaimByName(c, "user").(string)
-	if ok != true {
-		s.logInfo("Failed to get login claim")
-		c.Writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	user, err := s.databaseClient.FindUser(login)
+	userClaim := c.MustGet("userClaim").(types.User)
+	user, err := s.databaseClient.FindUser(userClaim.Login)
 	if err != nil {
 		s.logError("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -264,10 +309,7 @@ func (s *Server) SetSecretHandler(c *gin.Context) {
 }
 
 func (s *Server) PostRepoHandler(c *gin.Context) {
-	userID, ok := s.GetUserIDClaim(c)
-	if ok != true {
-		return
-	}
+	userClaim := c.MustGet("userClaim").(types.User)
 	repoMsg := &types.RepoMessage{}
 	bound := s.bindJSON(c, repoMsg)
 	if bound == false {
@@ -277,7 +319,7 @@ func (s *Server) PostRepoHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "repo name not provided"})
 		return
 	}
-	err := s.databaseClient.CreateRepo(repoMsg.FullName, userID)
+	err := s.databaseClient.CreateRepo(repoMsg.FullName, userClaim.ID)
 	if err != nil {
 		// TODO: Maybe move this error handling to CreateUser func?
 		pgErr, ok := err.(pg.Error)
@@ -293,10 +335,7 @@ func (s *Server) PostRepoHandler(c *gin.Context) {
 }
 
 func (s *Server) GetRepoHandler(c *gin.Context) {
-	userID, ok := s.GetUserIDClaim(c)
-	if ok != true {
-		return
-	}
+	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
 	if err != nil {
@@ -313,18 +352,15 @@ func (s *Server) GetRepoHandler(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"err": "repo not provided"})
 		return
 	}
-	if repo.OwnerID != userID {
+	if repo.OwnerID != userClaim.ID {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": "you have no access to this repo"})
 	}
 	c.JSON(http.StatusOK, repo)
 }
 
 func (s *Server) GetAllReposHandler(c *gin.Context) {
-	userID, ok := s.GetUserIDClaim(c)
-	if ok != true {
-		return
-	}
-	repos, err := s.databaseClient.FindAllUserRepos(userID)
+	userClaim := c.MustGet("userClaim").(types.User)
+	repos, err := s.databaseClient.FindAllUserRepos(userClaim.ID)
 	if err != nil {
 		s.logError("Find repos error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -334,17 +370,14 @@ func (s *Server) GetAllReposHandler(c *gin.Context) {
 }
 
 func (s *Server) DeleteRepoHandler(c *gin.Context) {
-	userID, ok := s.GetUserIDClaim(c)
-	if ok != true {
-		return
-	}
+	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
 		return
 	}
-	user, err := s.databaseClient.FindUserById(userID)
+	user, err := s.databaseClient.FindUserById(userClaim.ID)
 	if err != nil {
 		s.logError("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -361,18 +394,158 @@ func (s *Server) DeleteRepoHandler(c *gin.Context) {
 		return
 	}
 	if repo == nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": "repo not provided"})
+		c.JSON(http.StatusNotFound, gin.H{"err": "repo not found"})
 		return
 	}
 	if user.IsAdmin == false {
-		if userID != repo.OwnerID {
+		if userClaim.ID != repo.OwnerID {
 			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
 		    return
 		}
 	}
+	// TODO: Explicitly handle missing repo error
 	err = s.databaseClient.DeleteRepoByID(int64(repoID))
 	if err != nil {
 		s.logError("Delete repo error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"err": nil})
+}
+
+func (s *Server) PostBranchConfigHandler(c *gin.Context) {
+	userClaim := c.MustGet("userClaim").(types.User)
+	repoIDStr := c.Param("id")
+	repoID, err := strconv.Atoi(repoIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
+		return
+	}
+	user, err := s.databaseClient.FindUserById(userClaim.ID)
+	if err != nil {
+		s.logError("Find user error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if user == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
+		return
+	}
+	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
+	if err != nil {
+		s.logError("Find repo error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if repo == nil {
+		c.JSON(http.StatusNotFound, gin.H{"err": "repo not found"})
+		return
+	}
+	if user.IsAdmin == false {
+		if userClaim.ID != repo.OwnerID {
+			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
+		    return
+		}
+	}
+	branchMsg := &types.BranchMessage{}
+	bound := s.bindJSON(c, branchMsg)
+	if bound == false {
+		return
+	}
+	if branchMsg.BranchName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "branch name not provided"})
+		return
+	}
+	// Check if config for this branch already exists for this repo
+	conf, err := s.databaseClient.FindBranchConfig(int64(repoID), branchMsg.BranchName)
+	if err != nil {
+		s.logError("Find branch config error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if conf != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "Config for this branch already exists"})
+		return
+	}
+	branchConf := types.BranchConfig{
+		RepoID: int64(repoID),
+		Branch: branchMsg.BranchName,
+		IsCiEnabled: true,
+	}
+	err = s.databaseClient.CreateBranchConfig(&branchConf)
+	if err != nil {
+		s.logError("Create branch config error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"err":nil})
+}
+
+func (s *Server) GetAllBranchConfigsHandler(c *gin.Context) {
+	userClaim := c.MustGet("userClaim").(types.User)
+	repoIDStr := c.Param("id")
+	repoID, err := strconv.Atoi(repoIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
+		return
+	}
+	// Check if user owns this repo
+	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
+	if err != nil {
+		s.logError("Find repo error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if repo == nil {
+		c.JSON(http.StatusNotFound, gin.H{"err": "repo not found"})
+		return
+	}
+	if userClaim.IsAdmin == false {
+		if userClaim.ID != repo.OwnerID {
+			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
+		    return
+		}
+	}
+	configs, err := s.databaseClient.FindAllBranchConfigs(repo.ID)
+	if err != nil {
+		s.logError("Find branch configs error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"configs": configs})
+}
+
+func (s *Server) DeleteBranchConfigHandler(c *gin.Context) {
+	// TODO: Implement
+	userClaim := c.MustGet("userClaim").(types.User)
+	repoIDStr := c.Param("id")
+	repoID, err := strconv.Atoi(repoIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
+		return
+	}
+	branchName := c.Param("branch")
+	// Check if user owns this repo
+	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
+	if err != nil {
+		s.logError("Find repo error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if repo == nil {
+		c.JSON(http.StatusNotFound, gin.H{"err": "repo not found"})
+		return
+	}
+	if userClaim.IsAdmin == false {
+		if userClaim.ID != repo.OwnerID {
+			c.JSON(http.StatusUnauthorized, gin.H{"err": "no access"})
+		    return
+		}
+	}
+	err = s.databaseClient.DeleteBranchConfig(int64(repoID), branchName)
+	// TODO: Explicitly handle missing branch config error
+	if err != nil {
+		s.logError("Delete branch config error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

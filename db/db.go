@@ -182,3 +182,49 @@ func (d *DatabaseClient) FindAllUserRepos(userID int64) ([]types.GithubRepo, err
 
 	return repos, err
 }
+
+func (d *DatabaseClient) CreateBranchConfig(c *types.BranchConfig) error {
+	return d.pg.Insert(c)
+}
+
+func (d *DatabaseClient) FindBranchConfig(repoID int64, branch string) (*types.BranchConfig, error) {
+	var c types.BranchConfig
+	err := d.pg.Model(&c).
+		Where("repo_id = ?", repoID).
+		Where("branch = ?", branch).
+		Select()
+	if err != nil {
+		if err == pg.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	} else {
+		return &c, nil
+	}
+}
+
+func (d *DatabaseClient) DeleteBranchConfig(repoID int64, branch string) error {
+	config, err := d.FindBranchConfig(repoID, branch)
+	if err != nil {
+		return err
+	}
+	return d.pg.Delete(config)
+}
+
+func (d *DatabaseClient) DeleteBranchConfigByID(configID int64) error {
+	c := &types.BranchConfig{
+		ID: configID,
+	}
+
+	return d.pg.Delete(c)
+}
+
+func (d *DatabaseClient) FindAllBranchConfigs(repoID int64) ([]types.BranchConfig, error) {
+	var configs []types.BranchConfig
+
+	err := d.pg.Model(&configs).
+		Where("repo_id = ?", repoID).
+		Select()
+
+	return configs, err
+}
