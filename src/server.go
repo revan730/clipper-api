@@ -1,11 +1,7 @@
 package src
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -24,6 +20,7 @@ import (
 	"github.com/revan730/diploma-server/types"
 )
 
+// Server holds application API server
 type Server struct {
 	logger         *zap.Logger
 	config         *types.Config
@@ -107,6 +104,7 @@ func (s *Server) userClaimMiddleware(c *gin.Context) {
 	c.Next()
 }
 
+// NewServer creates new copy of Server
 func NewServer(logger *zap.Logger, config *types.Config) *Server {
 	server := &Server{
 		logger: logger,
@@ -138,55 +136,31 @@ func (s *Server) logInfo(msg string) {
 	s.logger.Info("INFO", zap.String("msg", msg), zap.String("packageLevel", "core"))
 }
 
+// Routes binds api routes to handlers
 func (s *Server) Routes() *Server {
-	s.router.POST("/api/v1/login", s.LoginHandler)
-	s.router.POST("/api/v1/register", s.RegisterHandler)
+	s.router.POST("/api/v1/login", s.loginHandler)
+	s.router.POST("/api/v1/register", s.registerHandler)
 
 	jwtSecret := []byte(s.config.JWTSecret)
 	authorized := s.router.Group("/")
 	authorized.Use(jwtMiddleware(jwtSecret), s.userClaimMiddleware)
 	{
 		// User
-		authorized.POST("/api/v1/user/secret", s.SetSecretHandler)
+		authorized.POST("/api/v1/user/secret", s.setSecretHandler)
 		// Github repos
-		authorized.POST("/api/v1/repos", s.PostRepoHandler)
-		authorized.GET("/api/v1/repos", s.GetAllReposHandler)
-		authorized.GET("/api/v1/repos/:id", s.GetRepoHandler)
-		authorized.DELETE("/api/v1/repos/:id", s.DeleteRepoHandler)
+		authorized.POST("/api/v1/repos", s.postRepoHandler)
+		authorized.GET("/api/v1/repos", s.getAllReposHandler)
+		authorized.GET("/api/v1/repos/:id", s.getRepoHandler)
+		authorized.DELETE("/api/v1/repos/:id", s.deleteRepoHandler)
 		// Repo configs
-		authorized.POST("/api/v1/repos/:id/branch", s.PostBranchConfigHandler)
-		authorized.GET("/api/v1/repos/:id/branch", s.GetAllBranchConfigsHandler)
-		authorized.DELETE("/api/v1/repos/:id/branch/:branch", s.DeleteBranchConfigHandler)
+		authorized.POST("/api/v1/repos/:id/branch", s.postBranchConfigHandler)
+		authorized.GET("/api/v1/repos/:id/branch", s.getAllBranchConfigsHandler)
+		authorized.DELETE("/api/v1/repos/:id/branch/:branch", s.deleteBranchConfigHandler)
 	}
 	return s
 }
 
-func writeJSON(w http.ResponseWriter, d interface{}) {
-	j, _ := json.Marshal(d)
-	fmt.Fprint(w, string(j))
-}
-
-func readJSON(body io.ReadCloser, jtype interface{}) error {
-	// Read body
-	if body == nil {
-		return errors.New("Body is nil")
-	}
-	b, err := ioutil.ReadAll(body)
-	defer body.Close()
-	if err != nil {
-		return err
-	}
-
-	// Decode json into provided structure
-	return json.Unmarshal(b, jtype)
-
-}
-
-func (s *Server) writeResponse(w http.ResponseWriter, responseBody interface{}, responseCode int) {
-	w.WriteHeader(responseCode)
-	writeJSON(w, responseBody)
-}
-
+// Run starts api server
 func (s *Server) Run() {
 	defer s.databaseClient.Close()
 	rand.Seed(time.Now().UnixNano())
@@ -214,7 +188,7 @@ func (s *Server) bindJSON(c *gin.Context, msg interface{}) bool {
 	return true
 }
 
-func (s *Server) LoginHandler(c *gin.Context) {
+func (s *Server) loginHandler(c *gin.Context) {
 	// Check if login and password are provided
 	loginMsg := &types.CredentialsMessage{}
 	s.bindJSON(c, loginMsg)
@@ -252,7 +226,7 @@ func (s *Server) LoginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
 
-func (s *Server) RegisterHandler(c *gin.Context) {
+func (s *Server) registerHandler(c *gin.Context) {
 	// Check if login and password are provided
 	registerMsg := &types.CredentialsMessage{}
 	s.bindJSON(c, registerMsg)
@@ -275,7 +249,7 @@ func (s *Server) RegisterHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-func (s *Server) SetSecretHandler(c *gin.Context) {
+func (s *Server) setSecretHandler(c *gin.Context) {
 	secretMsg := &types.WebhookSecretMessage{}
 	bound := s.bindJSON(c, secretMsg)
 	if bound == false {
@@ -306,7 +280,7 @@ func (s *Server) SetSecretHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-func (s *Server) PostRepoHandler(c *gin.Context) {
+func (s *Server) postRepoHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	repoMsg := &types.RepoMessage{}
 	bound := s.bindJSON(c, repoMsg)
@@ -332,7 +306,7 @@ func (s *Server) PostRepoHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-func (s *Server) GetRepoHandler(c *gin.Context) {
+func (s *Server) getRepoHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
@@ -356,7 +330,7 @@ func (s *Server) GetRepoHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, repo)
 }
 
-func (s *Server) GetAllReposHandler(c *gin.Context) {
+func (s *Server) getAllReposHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	repos, err := s.databaseClient.FindAllUserRepos(userClaim.ID, c.Request.URL.Query())
 	if err != nil {
@@ -367,7 +341,7 @@ func (s *Server) GetAllReposHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"repos": repos})
 }
 
-func (s *Server) DeleteRepoHandler(c *gin.Context) {
+func (s *Server) deleteRepoHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
@@ -378,7 +352,7 @@ func (s *Server) DeleteRepoHandler(c *gin.Context) {
 	// TODO: Don't think this part is effective, as user who
 	// forges access tokens can simply know user's id from
 	// token itself, no need to guess
-	user, err := s.databaseClient.FindUserById(userClaim.ID)
+	user, err := s.databaseClient.FindUserByID(userClaim.ID)
 	if err != nil {
 		s.logError("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -414,7 +388,7 @@ func (s *Server) DeleteRepoHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
 
-func (s *Server) PostBranchConfigHandler(c *gin.Context) {
+func (s *Server) postBranchConfigHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
@@ -422,7 +396,7 @@ func (s *Server) PostBranchConfigHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
 		return
 	}
-	user, err := s.databaseClient.FindUserById(userClaim.ID)
+	user, err := s.databaseClient.FindUserByID(userClaim.ID)
 	if err != nil {
 		s.logError("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -485,7 +459,7 @@ func (s *Server) PostBranchConfigHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"err":nil})
 }
 
-func (s *Server) GetAllBranchConfigsHandler(c *gin.Context) {
+func (s *Server) getAllBranchConfigsHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
@@ -519,7 +493,7 @@ func (s *Server) GetAllBranchConfigsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"configs": configs})
 }
 
-func (s *Server) DeleteBranchConfigHandler(c *gin.Context) {
+func (s *Server) deleteBranchConfigHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)

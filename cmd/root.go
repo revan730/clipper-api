@@ -23,7 +23,7 @@ var (
 	jwtSecret  string
 )
 
-var RootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use:   "clipper-server",
 	Short: "Backend of Clipper CI\\CD service",
 }
@@ -50,15 +50,16 @@ var serveCmd = &cobra.Command{
 	},
 }
 
+// Execute runs application with provided cli params
 func Execute() {
-	if err := RootCmd.Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 }
 
 func init() {
-	RootCmd.AddCommand(serveCmd)
+	rootCmd.AddCommand(serveCmd)
 	serveCmd.Flags().IntVarP(&serverPort, "port", "p", 8080,
 		"Application TCP port")
 	serveCmd.Flags().StringVarP(&dbAddr, "postgresAddr", "a",
