@@ -62,3 +62,22 @@ type RepoMessage struct {
 type BranchMessage struct {
 	BranchName string `json:"branch"`
 }
+
+type RepositoryMessage struct {
+	ID       int    `json:"id"`
+	FullName string `json:"full_name"`
+}
+
+type HeadMessage struct {
+	Ref string `json:"ref"`
+	Sha string `json:"sha"`
+}
+
+// WebhookPayload is used for
+// json binding of webhook payload
+type WebhookMessage struct {
+	Action     string            `json:"action"`
+	Repository RepositoryMessage `json:"repository"`
+	Ref        string            `json:"ref"`
+	Head       HeadMessage       `json:"head"`
+}
