@@ -80,4 +80,5 @@ type WebhookMessage struct {
 	Repository RepositoryMessage `json:"repository"`
 	Ref        string            `json:"ref"`
 	Head       HeadMessage       `json:"head"`
+	GitUrl     string            `json:"clone_url"`
 }

@@ -28,7 +28,6 @@ func checkSecret(secret string, c *gin.Context) error {
 	if gitSignStr == "" {
 		return errors.New("Github signature not provided")
 	}
-	fmt.Println(gitSignStr)
 	rawMsg, ok := c.Get(gin.BodyBytesKey)
 	if ok != true {
 		return errors.New("Failed to get request body")
@@ -39,7 +38,6 @@ func checkSecret(secret string, c *gin.Context) error {
 	}
 	actualSign := make([]byte, 20)
 	hex.Decode(actualSign, []byte(gitSignStr[5:]))
-	fmt.Println(actualSign)
 
 	if hmac.Equal(signBody([]byte(secret), body), actualSign) == false {
 		return errors.New("Signature doesn't match")
@@ -95,10 +93,20 @@ func (s *Server) webhookHandler(c *gin.Context) {
 		s.startCIJob()
 		c.Writer.WriteHeader(http.StatusOK)
 		return
+	case "pull_request":
+		// Here branch name can be found in
+		// payload.Head.Ref
+		if payload.Action != "opened" {
+			// We can only know by this event that
+			// ci is required if pull request opens
+			c.Writer.WriteHeader(http.StatusOK)
+			return
+		}
+		// TODO: Start CI Job
+		s.startCIJob()
 	default:
 		s.logInfo("Unsupported type, ignoring")
 		c.Writer.WriteHeader(http.StatusOK)
 		return
-		// TODO: Implement pull_request event handling
 	}
 }

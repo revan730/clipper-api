@@ -112,5 +112,8 @@ func (s *Server) bindJSON(c *gin.Context, msg interface{}) bool {
 }
 
 func (s *Server) startCIJob() {
+	// TODO: Git url can be retrieved from webhook message
+	// TODO: append username and access token to url
+	// in format https://login:access_token@github.com/...
 	s.logInfo("Starting CI Job")
 }
