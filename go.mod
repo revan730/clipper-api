@@ -14,6 +14,7 @@ require (
 	github.com/rs/cors v1.6.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3 // indirect
+	github.com/streadway/amqp v0.0.0-20181107104731-27835f1a64e9
 	github.com/ugorji/go/codec v0.0.0-20181022190402-e5e69e061d4f // indirect
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect

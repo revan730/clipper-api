@@ -12,9 +12,19 @@ import (
 	"github.com/rs/cors"
 
 	"github.com/go-redis/redis"
+	"github.com/streadway/amqp"
 	"github.com/revan730/diploma-server/db"
 	"github.com/revan730/diploma-server/types"
 )
+
+func connectToRabbit(addr string) *amqp.Connection {
+	connection, err := amqp.Dial(addr)
+	if err != nil {
+		panic(fmt.Sprintf("Couldn't connect to rabbitmq: %s", err))
+	}
+
+	return connection
+}
 
 // Server holds application API server
 type Server struct {
@@ -22,6 +32,7 @@ type Server struct {
 	config         *types.Config
 	redisClient    *redis.Client
 	databaseClient *db.DatabaseClient
+	rabbitConnection *amqp.Connection
 	router         *gin.Engine
 }
 
@@ -37,6 +48,7 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		Password: config.RedisPassword,
 		DB:       0,
 	})
+	server.rabbitConnection = connectToRabbit(config.RabbitAddress)
 	_, err := redisClient.Ping().Result()
 	if err != nil {
 		panic(err)
@@ -70,6 +82,7 @@ func (s *Server) Routes() *Server {
 	{
 		// User
 		authorized.POST("/api/v1/user/secret", s.setSecretHandler)
+		authorized.POST("/api/v1/user/accessToken", s.setAccessTokenHandler)
 		// Github repos
 		authorized.POST("/api/v1/repos", s.postRepoHandler)
 		authorized.GET("/api/v1/repos", s.getAllReposHandler)
@@ -111,7 +124,8 @@ func (s *Server) bindJSON(c *gin.Context, msg interface{}) bool {
 	return true
 }
 
-func (s *Server) startCIJob() {
+// TODO: Pass protobuf struct as parameter instead of separate values
+func (s *Server) startCIJob(repoURL, branch, headSHA string, user *types.User, repoID int64) {
 	// TODO: Git url can be retrieved from webhook message
 	// TODO: append username and access token to url
 	// in format https://login:access_token@github.com/...

@@ -102,3 +102,34 @@ func (s *Server) setSecretHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
+
+func (s *Server) setAccessTokenHandler(c *gin.Context) {
+	tokenMsg := &types.AccessTokenMessage{}
+	bound := s.bindJSON(c, tokenMsg)
+	if bound == false {
+		return
+	}
+	if tokenMsg.Token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "access token not provided"})
+		return
+	}
+	userClaim := c.MustGet("userClaim").(types.User)
+	user, err := s.databaseClient.FindUser(userClaim.Login)
+	if err != nil {
+		s.logError("Find user error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if user == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": "user not found"})
+		return
+	}
+	user.AccessToken = tokenMsg.Token
+	err = s.databaseClient.SaveUser(user)
+	if err != nil {
+		s.logError("User save error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"err": nil})
+}

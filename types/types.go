@@ -11,6 +11,7 @@ type User struct {
 	Password      string `json:"-"`
 	IsAdmin       bool   `json:"-" sql:"default:false"`
 	WebhookSecret string `json:"-" sql:"default:''"`
+	AccessToken   string `json:"-" sql:"default:''"`
 }
 
 // GithubRepo represents GitHub repository
@@ -50,6 +51,12 @@ type WebhookSecretMessage struct {
 	Secret string `json:"secret"`
 }
 
+// AccessTokenMessage is used for
+// json binding
+type AccessTokenMessage struct {
+	Token string `json:"token"`
+}
+
 // RepoMessage is used for
 // json binding
 type RepoMessage struct {
@@ -70,7 +77,11 @@ type RepositoryMessage struct {
 
 type HeadMessage struct {
 	Ref string `json:"ref"`
-	Sha string `json:"sha"`
+	SHA string `json:"sha"`
+}
+
+type CommitMessage struct {
+	SHA string `json:"id"`
 }
 
 // WebhookPayload is used for
@@ -80,5 +91,6 @@ type WebhookMessage struct {
 	Repository RepositoryMessage `json:"repository"`
 	Ref        string            `json:"ref"`
 	Head       HeadMessage       `json:"head"`
-	GitUrl     string            `json:"clone_url"`
+	GitURL     string            `json:"clone_url"`
+	HeadCommit CommitMessage     `json:"head_commit"`
 }

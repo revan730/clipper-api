@@ -90,7 +90,7 @@ func (s *Server) webhookHandler(c *gin.Context) {
 			return
 		}
 		// TODO: Start CI Job
-		s.startCIJob()
+		s.startCIJob(payload.GitURL, branchName, payload.HeadCommit.SHA, user, repo.ID)
 		c.Writer.WriteHeader(http.StatusOK)
 		return
 	case "pull_request":
@@ -103,7 +103,13 @@ func (s *Server) webhookHandler(c *gin.Context) {
 			return
 		}
 		// TODO: Start CI Job
-		s.startCIJob()
+		repo, err := s.databaseClient.FindRepoByName(payload.Repository.FullName)
+		if err != nil {
+			s.logError("Failed to find repo", err)
+			c.Writer.WriteHeader(http.StatusNotFound)
+			return
+		}
+		s.startCIJob(payload.GitURL, payload.Head.Ref, payload.Head.SHA, user, repo.ID)
 	default:
 		s.logInfo("Unsupported type, ignoring")
 		c.Writer.WriteHeader(http.StatusOK)
