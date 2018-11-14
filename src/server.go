@@ -12,19 +12,11 @@ import (
 	"github.com/rs/cors"
 
 	"github.com/go-redis/redis"
-	"github.com/streadway/amqp"
-	"github.com/revan730/diploma-server/db"
-	"github.com/revan730/diploma-server/types"
+	"github.com/revan730/clipper-api/db"
+	"github.com/revan730/clipper-api/types"
+	"github.com/revan730/clipper-api/queue"
+	commonTypes "github.com/revan730/clipper-common/types"
 )
-
-func connectToRabbit(addr string) *amqp.Connection {
-	connection, err := amqp.Dial(addr)
-	if err != nil {
-		panic(fmt.Sprintf("Couldn't connect to rabbitmq: %s", err))
-	}
-
-	return connection
-}
 
 // Server holds application API server
 type Server struct {
@@ -32,7 +24,7 @@ type Server struct {
 	config         *types.Config
 	redisClient    *redis.Client
 	databaseClient *db.DatabaseClient
-	rabbitConnection *amqp.Connection
+	jobQueue *queue.CIJobsQueue
 	router         *gin.Engine
 }
 
@@ -48,11 +40,7 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		Password: config.RedisPassword,
 		DB:       0,
 	})
-	server.rabbitConnection = connectToRabbit(config.RabbitAddress)
-	_, err := redisClient.Ping().Result()
-	if err != nil {
-		panic(err)
-	}
+	server.jobQueue = queue.NewQueue(config.RabbitAddress, config.RabbitQueue)
 	dbClient := db.NewDBClient(*config)
 	server.redisClient = redisClient
 	server.databaseClient = dbClient
@@ -125,9 +113,9 @@ func (s *Server) bindJSON(c *gin.Context, msg interface{}) bool {
 }
 
 // TODO: Pass protobuf struct as parameter instead of separate values
-func (s *Server) startCIJob(repoURL, branch, headSHA string, user *types.User, repoID int64) {
-	// TODO: Git url can be retrieved from webhook message
+func (s *Server) startCIJob(ciMsg commonTypes.CIJob) error {
 	// TODO: append username and access token to url
 	// in format https://login:access_token@github.com/...
 	s.logInfo("Starting CI Job")
+	return s.jobQueue.PublishJob(&ciMsg)
 }

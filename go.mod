@@ -1,4 +1,4 @@
-module github.com/revan730/diploma-server
+module github.com/revan730/clipper-api
 
 require (
 	github.com/auth0/go-jwt-middleware v0.0.0-20170425171159-5493cabe49f7
@@ -7,10 +7,12 @@ require (
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-pg/pg v6.15.1+incompatible
 	github.com/go-redis/redis v6.14.2+incompatible
-	github.com/golang/protobuf v1.2.0 // indirect
+	github.com/gogo/protobuf v1.1.1
+	github.com/golang/protobuf v1.2.0
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/mattn/go-isatty v0.0.4 // indirect
+	github.com/revan730/clipper-common v0.0.0-20181114112540-13c55a4e4e4f
 	github.com/rs/cors v1.6.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3 // indirect

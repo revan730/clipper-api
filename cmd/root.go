@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/revan730/diploma-server/src"
-	"github.com/revan730/diploma-server/types"
+	"github.com/revan730/clipper-api/src"
+	"github.com/revan730/clipper-api/types"
 	"github.com/spf13/cobra"
 )
 
@@ -26,8 +26,8 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "clipper-server",
-	Short: "Backend of Clipper CI\\CD service",
+	Use:   "clipper-api",
+	Short: "REST API microservice of Clipper CI\\CD",
 }
 
 var serveCmd = &cobra.Command{
@@ -87,5 +87,5 @@ func init() {
 	serveCmd.Flags().StringVarP(&rabbitAddr, "rabbitmq", "t",
 		"amqp://guest:guest@localhost:5672", "Set redis address")
 	serveCmd.Flags().StringVarP(&rabbitQ, "queue", "q",
-		"messages", "Set rabbitmq queue name")
+		"ciJobs", "Set rabbitmq queue name")
 }

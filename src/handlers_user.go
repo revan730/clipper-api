@@ -7,7 +7,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
-	"github.com/revan730/diploma-server/types"
+	"github.com/revan730/clipper-api/types"
 )
 
 func (s *Server) loginHandler(c *gin.Context) {

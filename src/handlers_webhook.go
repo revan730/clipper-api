@@ -11,7 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/revan730/diploma-server/types"
+	"github.com/revan730/clipper-api/types"
+	commonTypes "github.com/revan730/clipper-common/types"
 )
 
 func signBody(secret, body []byte) []byte {
@@ -89,8 +90,20 @@ func (s *Server) webhookHandler(c *gin.Context) {
 			c.Writer.WriteHeader(http.StatusOK)
 			return
 		}
-		// TODO: Start CI Job
-		s.startCIJob(payload.GitURL, branchName, payload.HeadCommit.SHA, user, repo.ID)
+		ciMsg := commonTypes.CIJob{
+			RepoURL:     payload.GitURL,
+			Branch:      branchName,
+			HeadSHA:     payload.HeadCommit.SHA,
+			User:        user.Login,
+			AccessToken: user.AccessToken,
+			RepoID:      repo.ID,
+		}
+		err = s.startCIJob(ciMsg)
+		if err != nil {
+			s.logError("Failed to publish CI job", err)
+			c.Writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		c.Writer.WriteHeader(http.StatusOK)
 		return
 	case "pull_request":
@@ -102,14 +115,26 @@ func (s *Server) webhookHandler(c *gin.Context) {
 			c.Writer.WriteHeader(http.StatusOK)
 			return
 		}
-		// TODO: Start CI Job
 		repo, err := s.databaseClient.FindRepoByName(payload.Repository.FullName)
 		if err != nil {
 			s.logError("Failed to find repo", err)
 			c.Writer.WriteHeader(http.StatusNotFound)
 			return
 		}
-		s.startCIJob(payload.GitURL, payload.Head.Ref, payload.Head.SHA, user, repo.ID)
+		ciMsg := commonTypes.CIJob{
+			RepoURL:     payload.GitURL,
+			Branch:      payload.Head.Ref,
+			HeadSHA:     payload.Head.SHA,
+			User:        user.Login,
+			AccessToken: user.AccessToken,
+			RepoID:      repo.ID,
+		}
+		err = s.startCIJob(ciMsg)
+		if err != nil {
+			s.logError("Failed to publish CI job", err)
+			c.Writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	default:
 		s.logInfo("Unsupported type, ignoring")
 		c.Writer.WriteHeader(http.StatusOK)

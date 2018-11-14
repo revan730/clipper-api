@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/revan730/diploma-server/types"
+	"github.com/revan730/clipper-api/types"
 )
 
 func (s *Server) postBranchConfigHandler(c *gin.Context) {
