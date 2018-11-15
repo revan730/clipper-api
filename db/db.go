@@ -54,7 +54,9 @@ func (d *DatabaseClient) createFirstAdmin() error {
 func (d *DatabaseClient) CreateSchema() error {
 	for _, model := range []interface{}{(*types.User)(nil),
 		(*types.GithubRepo)(nil),
-		(*types.BranchConfig)(nil)} {
+		(*types.BranchConfig)(nil),
+		(*types.Build)(nil),
+		(*types.BuildArtifact)(nil)} {
 		err := d.pg.CreateTable(model, &orm.CreateTableOptions{
 			IfNotExists:   true,
 			FKConstraints: true,

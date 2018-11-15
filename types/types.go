@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -29,6 +31,26 @@ type BranchConfig struct {
 	GithubRepo   *GithubRepo `json:"-"`
 	Branch       string      `json:"branch"`
 	IsCiEnabled  bool        `json:"ci_enabled"`
+}
+
+// Build represents CI job process with GCR container push
+type Build struct {
+	ID            int64       `json:"buildID"`
+	GithubRepoID  int64       `json:"-" pg:",fk" sql:"on_delete:CASCADE"`
+	GithubRepo    *GithubRepo `json:"-"`
+	IsSuccessfull bool        `json:"success"`
+	Date          time.Time   `json:"date"`
+	Branch        string      `json:"branch"`
+	Stdout        string      `json:"stdout"`
+}
+
+// BuildArtifact represents docker container pushed to GCR after CI process
+type BuildArtifact struct {
+	ID      int64  `json:"artifactID"`
+	BuildID int64  `json:"-" pg:",fk" sql:"on_delete:CASCADE"`
+	Build   *Build `json:"-"`
+	// Name is a complete container name, with version
+	Name string `json:"name"`
 }
 
 // Authenticate checks if provided password matches
@@ -84,7 +106,7 @@ type CommitMessage struct {
 	SHA string `json:"id"`
 }
 
-// WebhookPayload is used for
+// WebhookMessage is used for
 // json binding of webhook payload
 type WebhookMessage struct {
 	Action     string            `json:"action"`
