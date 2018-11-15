@@ -91,7 +91,7 @@ func (s *Server) webhookHandler(c *gin.Context) {
 			return
 		}
 		ciMsg := commonTypes.CIJob{
-			RepoURL:     payload.GitURL,
+			RepoURL:     payload.Repository.GitURL,
 			Branch:      branchName,
 			HeadSHA:     payload.HeadCommit.SHA,
 			User:        user.Login,
@@ -122,7 +122,7 @@ func (s *Server) webhookHandler(c *gin.Context) {
 			return
 		}
 		ciMsg := commonTypes.CIJob{
-			RepoURL:     payload.GitURL,
+			RepoURL:     payload.Repository.GitURL,
 			Branch:      payload.Head.Ref,
 			HeadSHA:     payload.Head.SHA,
 			User:        user.Login,

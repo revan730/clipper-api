@@ -35,6 +35,7 @@ type BranchMessage struct {
 type RepositoryMessage struct {
 	ID       int    `json:"id"`
 	FullName string `json:"full_name"`
+	GitURL   string `json:"clone_url"`
 }
 
 type HeadMessage struct {
@@ -53,6 +54,5 @@ type WebhookMessage struct {
 	Repository RepositoryMessage `json:"repository"`
 	Ref        string            `json:"ref"`
 	Head       HeadMessage       `json:"head"`
-	GitURL     string            `json:"clone_url"`
 	HeadCommit CommitMessage     `json:"head_commit"`
 }
