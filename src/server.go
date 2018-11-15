@@ -12,7 +12,7 @@ import (
 	"github.com/rs/cors"
 
 	"github.com/go-redis/redis"
-	"github.com/revan730/clipper-api/db"
+	"github.com/revan730/clipper-common/db"
 	"github.com/revan730/clipper-api/types"
 	"github.com/revan730/clipper-api/queue"
 	commonTypes "github.com/revan730/clipper-common/types"
@@ -41,7 +41,15 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		DB:       0,
 	})
 	server.jobQueue = queue.NewQueue(config.RabbitAddress, config.RabbitQueue)
-	dbClient := db.NewDBClient(*config)
+	dbConfig := commonTypes.DBClientConfig{
+		DBUser:         config.DBUser,
+		DBAddr:         config.DBAddr,
+		DBPassword:     config.DBPassword,
+		DB:     config.DB,
+		AdminLogin: config.AdminLogin,
+		AdminPassword: config.AdminPassword,
+	}
+	dbClient := db.NewDBClient(dbConfig)
 	server.redisClient = redisClient
 	server.databaseClient = dbClient
 	return server

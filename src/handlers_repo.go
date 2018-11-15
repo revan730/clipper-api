@@ -7,10 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 	"github.com/revan730/clipper-api/types"
+	commonTypes "github.com/revan730/clipper-common/types"
 )
 
 func (s *Server) postRepoHandler(c *gin.Context) {
-	userClaim := c.MustGet("userClaim").(types.User)
+	userClaim := c.MustGet("userClaim").(commonTypes.User)
 	repoMsg := &types.RepoMessage{}
 	bound := s.bindJSON(c, repoMsg)
 	if bound == false {
@@ -36,7 +37,7 @@ func (s *Server) postRepoHandler(c *gin.Context) {
 }
 
 func (s *Server) getRepoHandler(c *gin.Context) {
-	userClaim := c.MustGet("userClaim").(types.User)
+	userClaim := c.MustGet("userClaim").(commonTypes.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
 	if err != nil {
@@ -60,7 +61,7 @@ func (s *Server) getRepoHandler(c *gin.Context) {
 }
 
 func (s *Server) getAllReposHandler(c *gin.Context) {
-	userClaim := c.MustGet("userClaim").(types.User)
+	userClaim := c.MustGet("userClaim").(commonTypes.User)
 	repos, err := s.databaseClient.FindAllUserRepos(userClaim.ID, c.Request.URL.Query())
 	if err != nil {
 		s.logError("Find repos error", err)
@@ -71,7 +72,7 @@ func (s *Server) getAllReposHandler(c *gin.Context) {
 }
 
 func (s *Server) deleteRepoHandler(c *gin.Context) {
-	userClaim := c.MustGet("userClaim").(types.User)
+	userClaim := c.MustGet("userClaim").(commonTypes.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 	"github.com/revan730/clipper-api/types"
+	commonTypes "github.com/revan730/clipper-common/types"
 )
 
 func (s *Server) loginHandler(c *gin.Context) {
@@ -82,7 +83,7 @@ func (s *Server) setSecretHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "secret not provided"})
 		return
 	}
-	userClaim := c.MustGet("userClaim").(types.User)
+	userClaim := c.MustGet("userClaim").(commonTypes.User)
 	user, err := s.databaseClient.FindUser(userClaim.Login)
 	if err != nil {
 		s.logError("Find user error", err)
@@ -113,7 +114,7 @@ func (s *Server) setAccessTokenHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "access token not provided"})
 		return
 	}
-	userClaim := c.MustGet("userClaim").(types.User)
+	userClaim := c.MustGet("userClaim").(commonTypes.User)
 	user, err := s.databaseClient.FindUser(userClaim.Login)
 	if err != nil {
 		s.logError("Find user error", err)

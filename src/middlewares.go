@@ -6,7 +6,7 @@ import (
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/revan730/clipper-api/types"
+	commonTypes "github.com/revan730/clipper-common/types"
 )
 
 func jwtMiddleware(secret []byte) gin.HandlerFunc {
@@ -28,7 +28,10 @@ func jwtMiddleware(secret []byte) gin.HandlerFunc {
 
 func (s *Server) getClaimByName(c *gin.Context, name string) interface{} {
 	jwtToken := c.Request.Context().Value("user")
-	claims := jwtToken.(*jwt.Token).Claims.(jwt.MapClaims)
+	claims, ok := jwtToken.(*jwt.Token).Claims.(jwt.MapClaims)
+	if ok == false {
+		return nil
+	}
 	return claims[name]
 }
 
@@ -75,7 +78,7 @@ func (s *Server) userClaimMiddleware(c *gin.Context) {
 	if ok == false {
 		return
 	}
-	user := types.User{
+	user := commonTypes.User{
 		ID:      userID,
 		IsAdmin: isAdmin,
 		Login:   login,

@@ -22,6 +22,8 @@ github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs
 github.com/mattn/go-isatty v0.0.4/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/revan730/clipper-common v0.0.0-20181114112540-13c55a4e4e4f h1:y64ZP6VSG0as83j5fNWKe6XANFhSRsI/8lrjOFgmQuY=
 github.com/revan730/clipper-common v0.0.0-20181114112540-13c55a4e4e4f/go.mod h1:/1lvFDXFXp2yknsNk6GQ2GryVo2V6EggVBvMiqZWyEw=
+github.com/revan730/clipper-common v0.0.0-20181115194128-a15439446a15 h1:wTiPTxpZhoj0MyLJkhrUCZkJuqydrfjnXTrcDFBJp00=
+github.com/revan730/clipper-common v0.0.0-20181115194128-a15439446a15/go.mod h1:zhvrBe4cSeLo8kz6FZOLLFrDBQpMuhzwsf8PrPgF/3A=
 github.com/rs/cors v1.6.0 h1:G9tHG9lebljV9mfp9SNPDL36nCDxmo3zTlAf1YgvzmI=
 github.com/rs/cors v1.6.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/spf13/cobra v0.0.3 h1:ZlrZ4XsMRm04Fr5pSFxBgfND2EBVa1nLpiy1stUsX/8=

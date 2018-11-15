@@ -9,10 +9,9 @@ require (
 	github.com/go-redis/redis v6.14.2+incompatible
 	github.com/gogo/protobuf v1.1.1
 	github.com/golang/protobuf v1.2.0
-	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/mattn/go-isatty v0.0.4 // indirect
-	github.com/revan730/clipper-common v0.0.0-20181114112540-13c55a4e4e4f
+	github.com/revan730/clipper-common v0.0.0-20181115194128-a15439446a15
 	github.com/rs/cors v1.6.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3 // indirect
@@ -25,5 +24,4 @@ require (
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
-	mellium.im/sasl v0.2.1 // indirect
 )
