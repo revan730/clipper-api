@@ -8,12 +8,14 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// CIJobsQueue represents rabbitMQ queue with CI jobs
 type CIJobsQueue struct {
 	rabbitConnection *amqp.Connection
 	channel          *amqp.Channel
 	jobsQueue        amqp.Queue
 }
 
+// NewQueue creates new copy of CIJobsQueue
 func NewQueue(addr, queue string) *CIJobsQueue {
 	conn, err := amqp.Dial(addr)
 	if err != nil {
@@ -40,6 +42,7 @@ func NewQueue(addr, queue string) *CIJobsQueue {
 	return CIJobsQueue
 }
 
+// PublishJob publishes CIJob with provided data
 func (jq *CIJobsQueue) PublishJob(jobMsg *commonTypes.CIJob) error {
 	body, err := proto.Marshal(jobMsg)
 	if err != nil {
