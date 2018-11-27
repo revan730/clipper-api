@@ -109,9 +109,9 @@ func (s *Server) webhookHandler(c *gin.Context) {
 	case "pull_request":
 		// Here branch name can be found in
 		// payload.Head.Ref
-		if payload.Action != "opened" {
+		if payload.Action != "opened" && payload.Action != "synchronize" {
 			// We can only know by this event that
-			// ci is required if pull request opens
+			// ci is required if pull request opens or syncronizes
 			c.Writer.WriteHeader(http.StatusOK)
 			return
 		}
@@ -123,8 +123,8 @@ func (s *Server) webhookHandler(c *gin.Context) {
 		}
 		ciMsg := commonTypes.CIJob{
 			RepoURL:     payload.Repository.GitURL,
-			Branch:      payload.Head.Ref,
-			HeadSHA:     payload.Head.SHA,
+			Branch:      payload.PullRequest.Head.Ref,
+			HeadSHA:     payload.PullRequest.Head.SHA,
 			User:        user.Login,
 			AccessToken: user.AccessToken,
 			RepoID:      repo.ID,

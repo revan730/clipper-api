@@ -47,12 +47,18 @@ type CommitMessage struct {
 	SHA string `json:"id"`
 }
 
+type PullRequestMessage struct {
+	Head HeadMessage `json:"head"`
+}
+
+// TODO: Refactor using nested struct declaration
+
 // WebhookMessage is used for
 // json binding of webhook payload
 type WebhookMessage struct {
-	Action     string            `json:"action"`
-	Repository RepositoryMessage `json:"repository"`
-	Ref        string            `json:"ref"`
-	Head       HeadMessage       `json:"head"`
-	HeadCommit CommitMessage     `json:"head_commit"`
+	Action      string             `json:"action"`
+	Repository  RepositoryMessage  `json:"repository"`
+	Ref         string             `json:"ref"`
+	PullRequest PullRequestMessage `json:"pull_request"`
+	HeadCommit  CommitMessage      `json:"head_commit"`
 }
