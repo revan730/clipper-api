@@ -14,7 +14,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/revan730/clipper-common/db"
 	"github.com/revan730/clipper-api/types"
-	"github.com/revan730/clipper-api/queue"
+	"github.com/revan730/clipper-common/queue"
 	commonTypes "github.com/revan730/clipper-common/types"
 )
 
@@ -24,7 +24,7 @@ type Server struct {
 	config         *types.Config
 	redisClient    *redis.Client
 	databaseClient *db.DatabaseClient
-	jobQueue *queue.CIJobsQueue
+	jobQueue *queue.Queue
 	router         *gin.Engine
 }
 
@@ -40,7 +40,7 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		Password: config.RedisPassword,
 		DB:       0,
 	})
-	server.jobQueue = queue.NewQueue(config.RabbitAddress, config.RabbitQueue)
+	server.jobQueue = queue.NewQueue(config.RabbitAddress)
 	dbConfig := commonTypes.DBClientConfig{
 		DBUser:         config.DBUser,
 		DBAddr:         config.DBAddr,
@@ -120,10 +120,7 @@ func (s *Server) bindJSON(c *gin.Context, msg interface{}) bool {
 	return true
 }
 
-// TODO: Pass protobuf struct as parameter instead of separate values
 func (s *Server) startCIJob(ciMsg commonTypes.CIJob) error {
-	// TODO: append username and access token to url
-	// in format https://login:access_token@github.com/...
 	s.logInfo("Starting CI Job")
-	return s.jobQueue.PublishJob(&ciMsg)
+	return s.jobQueue.PublishCIJob(&ciMsg)
 }

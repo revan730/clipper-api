@@ -22,7 +22,6 @@ var (
 	adminPass  string
 	jwtSecret  string
 	rabbitAddr string
-	rabbitQ    string
 )
 
 var rootCmd = &cobra.Command{
@@ -46,7 +45,6 @@ var serveCmd = &cobra.Command{
 			AdminPassword: adminPass,
 			JWTSecret:     jwtSecret,
 			RabbitAddress: rabbitAddr,
-			RabbitQueue:   rabbitQ,
 		}
 		logger := src.NewLogger(logVerbose)
 		server := src.NewServer(logger, config).Routes()
@@ -86,6 +84,4 @@ func init() {
 		"veryverysecret", "Set jwt secret")
 	serveCmd.Flags().StringVarP(&rabbitAddr, "rabbitmq", "t",
 		"amqp://guest:guest@localhost:5672", "Set redis address")
-	serveCmd.Flags().StringVarP(&rabbitQ, "queue", "q",
-		"ciJobs", "Set rabbitmq queue name")
 }
