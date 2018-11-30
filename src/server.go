@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 	"github.com/rs/cors"
 
-	"github.com/revan730/clipper-common/db"
+	"github.com/revan730/clipper-api/db"
 	"github.com/revan730/clipper-api/types"
 	"github.com/revan730/clipper-common/queue"
 	commonTypes "github.com/revan730/clipper-common/types"
