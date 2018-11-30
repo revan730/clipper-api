@@ -8,8 +8,6 @@ type Config struct {
 	DB            string
 	DBUser        string
 	DBPassword    string
-	RedisAddr     string
-	RedisPassword string
 	AdminLogin    string
 	AdminPassword string
 	JWTSecret     string

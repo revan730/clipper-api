@@ -16,8 +16,6 @@ var (
 	db         string
 	dbUser     string
 	dbPass     string
-	redisAddr  string
-	redisPass  string
 	adminLogin string
 	adminPass  string
 	jwtSecret  string
@@ -39,8 +37,6 @@ var serveCmd = &cobra.Command{
 			DB:            db,
 			DBUser:        dbUser,
 			DBPassword:    dbPass,
-			RedisAddr:     redisAddr,
-			RedisPassword: redisPass,
 			AdminLogin:    adminLogin,
 			AdminPassword: adminPass,
 			JWTSecret:     jwtSecret,
@@ -72,10 +68,6 @@ func init() {
 		"clipper", "Set PostgreSQL user to use")
 	serveCmd.Flags().StringVarP(&dbPass, "pass", "c",
 		"clipper", "Set PostgreSQL password to use")
-	serveCmd.Flags().StringVarP(&redisAddr, "redis", "r",
-		"redis:6379", "Set redis address")
-	serveCmd.Flags().StringVarP(&redisPass, "redispass", "b",
-		"", "Set redis address")
 	serveCmd.Flags().StringVarP(&adminLogin, "adminlogin", "l",
 		"admin", "Set default admin login")
 	serveCmd.Flags().StringVarP(&adminPass, "adminpass", "x",
@@ -83,5 +75,5 @@ func init() {
 	serveCmd.Flags().StringVarP(&jwtSecret, "jwt", "j",
 		"veryverysecret", "Set jwt secret")
 	serveCmd.Flags().StringVarP(&rabbitAddr, "rabbitmq", "t",
-		"amqp://guest:guest@localhost:5672", "Set redis address")
+		"amqp://guest:guest@localhost:5672", "Set rabbitmq address")
 }

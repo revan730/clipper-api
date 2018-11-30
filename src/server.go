@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 	"github.com/rs/cors"
 
-	"github.com/go-redis/redis"
 	"github.com/revan730/clipper-common/db"
 	"github.com/revan730/clipper-api/types"
 	"github.com/revan730/clipper-common/queue"
@@ -22,7 +21,6 @@ import (
 type Server struct {
 	logger         *zap.Logger
 	config         *types.Config
-	redisClient    *redis.Client
 	databaseClient *db.DatabaseClient
 	jobQueue *queue.Queue
 	router         *gin.Engine
@@ -35,11 +33,6 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		router: gin.Default(),
 		config: config,
 	}
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     config.RedisAddr,
-		Password: config.RedisPassword,
-		DB:       0,
-	})
 	server.jobQueue = queue.NewQueue(config.RabbitAddress)
 	dbConfig := commonTypes.DBClientConfig{
 		DBUser:         config.DBUser,
@@ -50,7 +43,6 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		AdminPassword: config.AdminPassword,
 	}
 	dbClient := db.NewDBClient(dbConfig)
-	server.redisClient = redisClient
 	server.databaseClient = dbClient
 	return server
 }
