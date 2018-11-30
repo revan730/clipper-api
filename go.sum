@@ -28,6 +28,8 @@ github.com/revan730/clipper-common v0.0.0-20181128140503-87dd7a4b7cca h1:pJJ/fk2
 github.com/revan730/clipper-common v0.0.0-20181128140503-87dd7a4b7cca/go.mod h1:pF9vSCEZV5GAKwEeuXanWS01EQ8DH2ZyoUQOJDIVp5Y=
 github.com/revan730/clipper-common v0.0.0-20181128141105-e570675113ab h1:3MjiEjXj2U2qDWeNfeyL2cXnA2OoiaXI5cnql9VIn40=
 github.com/revan730/clipper-common v0.0.0-20181128141105-e570675113ab/go.mod h1:pF9vSCEZV5GAKwEeuXanWS01EQ8DH2ZyoUQOJDIVp5Y=
+github.com/revan730/clipper-common v0.0.0-20181130140937-d2fa3f3fb54a h1:8MgHQtI2p4LtnR9jHeGBldhdKe8tnH0m5a2IsmZhDUs=
+github.com/revan730/clipper-common v0.0.0-20181130140937-d2fa3f3fb54a/go.mod h1:pF9vSCEZV5GAKwEeuXanWS01EQ8DH2ZyoUQOJDIVp5Y=
 github.com/rs/cors v1.6.0 h1:G9tHG9lebljV9mfp9SNPDL36nCDxmo3zTlAf1YgvzmI=
 github.com/rs/cors v1.6.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/spf13/cobra v0.0.3 h1:ZlrZ4XsMRm04Fr5pSFxBgfND2EBVa1nLpiy1stUsX/8=
@@ -58,5 +60,7 @@ gopkg.in/go-playground/validator.v8 v8.18.2 h1:lFB4DoMU6B626w8ny76MV7VX6W2VHct2G
 gopkg.in/go-playground/validator.v8 v8.18.2/go.mod h1:RX2a/7Ha8BgOhfk7j780h4/u/RRjR0eouCJSH80/M2Y=
 gopkg.in/yaml.v2 v2.2.1 h1:mUhvW9EsL+naU5Q3cakzfE91YhliOondGd6ZrsDBHQE=
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
+gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
+gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 mellium.im/sasl v0.2.1 h1:nspKSRg7/SyO0cRGY71OkfHab8tf9kCts6a6oTDut0w=
 mellium.im/sasl v0.2.1/go.mod h1:ROaEDLQNuf9vjKqE1SrAfnsobm2YKXT1gnN1uDp1PjQ=

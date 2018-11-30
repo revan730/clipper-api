@@ -21,7 +21,7 @@ import (
 type Server struct {
 	logger         *zap.Logger
 	config         *types.Config
-	databaseClient *db.DatabaseClient
+	databaseClient db.DatabaseClient
 	jobQueue *queue.Queue
 	router         *gin.Engine
 }
@@ -34,7 +34,7 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		config: config,
 	}
 	server.jobQueue = queue.NewQueue(config.RabbitAddress)
-	dbConfig := commonTypes.DBClientConfig{
+	dbConfig := commonTypes.PGClientConfig{
 		DBUser:         config.DBUser,
 		DBAddr:         config.DBAddr,
 		DBPassword:     config.DBPassword,
@@ -42,7 +42,7 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		AdminLogin: config.AdminLogin,
 		AdminPassword: config.AdminPassword,
 	}
-	dbClient := db.NewDBClient(dbConfig)
+	dbClient := db.NewPGClient(dbConfig)
 	server.databaseClient = dbClient
 	return server
 }
