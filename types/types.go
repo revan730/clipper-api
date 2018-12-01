@@ -1,5 +1,9 @@
 package types
 
+import (
+	"golang.org/x/crypto/bcrypt"
+)
+
 // User represents system's user
 type User struct {
 	ID            int64  `json:"-"`
@@ -8,6 +12,13 @@ type User struct {
 	IsAdmin       bool   `json:"-" sql:"default:false"`
 	WebhookSecret string `json:"-" sql:"default:''"`
 	AccessToken   string `json:"-" sql:"default:''"`
+}
+
+// Authenticate checks if provided password matches
+// for this user
+func (u User) Authenticate(password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+	return err == nil
 }
 
 // GithubRepo represents GitHub repository

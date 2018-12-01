@@ -3,7 +3,7 @@ package db
 import (
 	"net/url"
 
-	"github.com/revan730/clipper-common/types"
+	"github.com/revan730/clipper-api/types"
 )
 
 // DatabaseClient provides interface for data access layer operations

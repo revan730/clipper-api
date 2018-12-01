@@ -20,6 +20,7 @@ var (
 	adminPass  string
 	jwtSecret  string
 	rabbitAddr string
+	ciAddr     string
 )
 
 var rootCmd = &cobra.Command{
@@ -41,6 +42,7 @@ var serveCmd = &cobra.Command{
 			AdminPassword: adminPass,
 			JWTSecret:     jwtSecret,
 			RabbitAddress: rabbitAddr,
+			CIAddress:     ciAddr,
 		}
 		logger := src.NewLogger(logVerbose)
 		server := src.NewServer(logger, config).Routes()
@@ -76,4 +78,6 @@ func init() {
 		"veryverysecret", "Set jwt secret")
 	serveCmd.Flags().StringVarP(&rabbitAddr, "rabbitmq", "t",
 		"amqp://guest:guest@localhost:5672", "Set rabbitmq address")
+	serveCmd.Flags().StringVarP(&ciAddr, "ci", "g",
+		"ci-worker:8080", "Set CI gRPC address")
 }

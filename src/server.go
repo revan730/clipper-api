@@ -13,7 +13,8 @@ import (
 
 	"github.com/revan730/clipper-api/db"
 	"github.com/revan730/clipper-api/types"
-	"github.com/revan730/clipper-common/queue"
+	"github.com/revan730/clipper-api/queue"
+	"github.com/revan730/clipper-api/CIApi"
 	commonTypes "github.com/revan730/clipper-common/types"
 )
 
@@ -22,6 +23,7 @@ type Server struct {
 	logger         *zap.Logger
 	config         *types.Config
 	databaseClient db.DatabaseClient
+	ciClient *CIApi.CIClient
 	jobQueue *queue.Queue
 	router         *gin.Engine
 }
@@ -44,6 +46,8 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 	}
 	dbClient := db.NewPGClient(dbConfig)
 	server.databaseClient = dbClient
+	ciClient := CIApi.NewClient(config.CIAddress, logger)
+	server.ciClient = ciClient
 	return server
 }
 
@@ -80,6 +84,9 @@ func (s *Server) Routes() *Server {
 		authorized.POST("/api/v1/repos/:id/branch", s.postBranchConfigHandler)
 		authorized.GET("/api/v1/repos/:id/branch", s.getAllBranchConfigsHandler)
 		authorized.DELETE("/api/v1/repos/:id/branch/:branch", s.deleteBranchConfigHandler)
+		// Builds
+		authorized.GET("/api/v1/builds/:id", s.getBuildHandler)
+		// TODO: /api/v1/repos/:id/builds GET
 	}
 	return s
 }

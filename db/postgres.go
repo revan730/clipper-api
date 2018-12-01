@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
-	"github.com/revan730/clipper-common/types"
+	"github.com/revan730/clipper-api/types"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -12,4 +12,5 @@ type Config struct {
 	AdminPassword string
 	JWTSecret     string
 	RabbitAddress string
+	CIAddress     string
 }
