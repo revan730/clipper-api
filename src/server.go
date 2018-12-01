@@ -34,7 +34,7 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		config: config,
 	}
 	server.jobQueue = queue.NewQueue(config.RabbitAddress)
-	dbConfig := commonTypes.PGClientConfig{
+	dbConfig := types.PGClientConfig{
 		DBUser:         config.DBUser,
 		DBAddr:         config.DBAddr,
 		DBPassword:     config.DBPassword,

@@ -6,11 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/revan730/clipper-api/types"
-	commonTypes "github.com/revan730/clipper-common/types"
 )
 
 func (s *Server) postBranchConfigHandler(c *gin.Context) {
-	userClaim := c.MustGet("userClaim").(commonTypes.User)
+	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
 	if err != nil {
@@ -66,7 +65,7 @@ func (s *Server) postBranchConfigHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Config for this branch already exists"})
 		return
 	}
-	branchConf := commonTypes.BranchConfig{
+	branchConf := types.BranchConfig{
 		GithubRepoID: int64(repoID),
 		Branch:       branchMsg.BranchName,
 		IsCiEnabled:  true,
@@ -81,7 +80,7 @@ func (s *Server) postBranchConfigHandler(c *gin.Context) {
 }
 
 func (s *Server) getAllBranchConfigsHandler(c *gin.Context) {
-	userClaim := c.MustGet("userClaim").(commonTypes.User)
+	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
 	if err != nil {
@@ -115,7 +114,7 @@ func (s *Server) getAllBranchConfigsHandler(c *gin.Context) {
 }
 
 func (s *Server) deleteBranchConfigHandler(c *gin.Context) {
-	userClaim := c.MustGet("userClaim").(commonTypes.User)
+	userClaim := c.MustGet("userClaim").(types.User)
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
 	if err != nil {
