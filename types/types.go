@@ -1,6 +1,10 @@
 package types
 
 import (
+	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	commonTypes "github.com/revan730/clipper-common/types"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -99,6 +103,31 @@ type WebhookMessage struct {
 	Ref         string             `json:"ref"`
 	PullRequest PullRequestMessage `json:"pull_request"`
 	HeadCommit  CommitMessage      `json:"head_commit"`
+}
+
+type BuildMessage struct {
+	ID            int64     `json:"id"`
+	GithubRepoID  int64     `json:"repoID"`
+	IsSuccessfull bool      `json:"isSuccessfull"`
+	Date          time.Time `json:"date"`
+	Branch        string    `json:"branch"`
+	Stdout        string    `json:"stdout"`
+}
+
+func BuildMsgFromBuild(b *commonTypes.Build) (*BuildMessage, error) {
+	date, err := ptypes.Timestamp(b.Date)
+	if err != nil {
+		return nil, err
+	}
+	buildMsg := &BuildMessage{
+		ID:            b.ID,
+		GithubRepoID:  b.GithubRepoID,
+		IsSuccessfull: b.IsSuccessfull,
+		Date:          date,
+		Branch:        b.Branch,
+		Stdout:        b.Stdout,
+	}
+	return buildMsg, nil
 }
 
 type PGClientConfig struct {

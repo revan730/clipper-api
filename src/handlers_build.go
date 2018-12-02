@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/revan730/clipper-api/types"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Server) getBuildHandler(c *gin.Context) {
@@ -16,14 +18,21 @@ func (s *Server) getBuildHandler(c *gin.Context) {
 	}
 	build, err := s.ciClient.GetBuild(int64(buildID))
 	if err != nil {
+		statusErr, ok := status.FromError(err)
+		if ok == true {
+			if statusErr.Code() == http.StatusNotFound {
+				c.JSON(http.StatusNotFound, gin.H{"err": "build not found"})
+				return
+			}
+		}
 		s.logError("Find build error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if build == nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": "build not found"})
-		return
+	buildMsg, err := types.BuildMsgFromBuild(build)
+	if err != nil {
+		s.logError("Failed to make build message", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 	}
-	// TODO: Replace timestamp with time
-	c.JSON(http.StatusOK, build)
+	c.JSON(http.StatusOK, buildMsg)
 }
