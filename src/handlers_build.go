@@ -1,7 +1,6 @@
 package src
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -38,40 +37,6 @@ func (s *Server) getBuildHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, buildMsg)
 }
 
-func getBuidsQueryParams(queryParams map[string][]string) (*types.BuildsQueryParams, error) {
-	params := &types.BuildsQueryParams{
-		Page:  1,
-		Limit: 20,
-	}
-	if len(queryParams["branch"]) > 0 {
-		params.Branch = queryParams["branch"][0]
-	}
-	if params.Branch == "" {
-		params.Branch = "master"
-	}
-	if len(queryParams["page"]) > 0 {
-		pageStr := queryParams["page"][0]
-		if pageStr != "" {
-			page, err := strconv.Atoi(pageStr)
-			if err != nil {
-				return nil, errors.New("page is not int")
-			}
-			params.Page = page
-		}
-	}
-	if len(queryParams["limit"]) > 0 {
-		limitStr := queryParams["limit"][0]
-		if limitStr != "" {
-			limit, err := strconv.Atoi(limitStr)
-			if err != nil {
-				return nil, errors.New("limit is not int")
-			}
-			params.Limit = limit
-		}
-	}
-	return params, nil
-}
-
 func (s *Server) getAllBuildsHandler(c *gin.Context) {
 	repoIDStr := c.Param("id")
 	repoID, err := strconv.Atoi(repoIDStr)
@@ -79,12 +44,16 @@ func (s *Server) getAllBuildsHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "repo id is not int"})
 		return
 	}
-	queryParams := c.Request.URL.Query()
-	parsedParams, err := getBuidsQueryParams(queryParams)
+	params := &types.BuildsQueryParams{
+		Branch: "master",
+		Page:   1,
+		Limit:  20,
+	}
+	err = c.ShouldBind(params)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 	}
-	builds, err := s.ciClient.GetAllBuilds(int64(repoID), *parsedParams)
+	builds, err := s.ciClient.GetAllBuilds(int64(repoID), *params)
 	if err != nil {
 		s.logError("Find build error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)

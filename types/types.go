@@ -158,7 +158,7 @@ type PGClientConfig struct {
 }
 
 type BuildsQueryParams struct {
-	Branch string
-	Page   int
-	Limit  int
+	Branch string `form:"branch"`
+	Page   int    `form:"page"`
+	Limit  int    `form:"limit"`
 }
