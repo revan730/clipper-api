@@ -32,3 +32,8 @@ func (c *CIClient) GetBuild(buildID int64) (*commonTypes.Build, error) {
 	return c.gClient.GetBuild(context.Background(),
 		&commonTypes.Build{ID: buildID})
 }
+
+func (c *CIClient) GetBuildArtifact(buildID int64) (*commonTypes.BuildArtifact, error) {
+	return c.gClient.GetBuildArtifact(context.Background(),
+		&commonTypes.BuildArtifact{BuildID: buildID})
+}

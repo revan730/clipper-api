@@ -13,7 +13,7 @@ require (
 	github.com/golang/protobuf v1.2.0
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/mattn/go-isatty v0.0.4 // indirect
-	github.com/revan730/clipper-common v0.0.0-20181201151709-da47c036ccef
+	github.com/revan730/clipper-common v0.0.0-20181204150301-e722a1410b1c
 	github.com/rs/cors v1.6.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3 // indirect
@@ -22,15 +22,15 @@ require (
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1
-	golang.org/x/crypto v0.0.0-20181127143415-eb0de9b17e85
+	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
 	golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3 // indirect
 	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc
-	golang.org/x/oauth2 v0.0.0-20181128211412-28207608b838 // indirect
+	golang.org/x/oauth2 v0.0.0-20181203162652-d668ce993890 // indirect
 	golang.org/x/sync v0.0.0-20181108010431-42b317875d0f // indirect
 	golang.org/x/sys v0.0.0-20181128092732-4ed8d59d0b35 // indirect
-	golang.org/x/tools v0.0.0-20181201035826-d0ca3933b724 // indirect
+	golang.org/x/tools v0.0.0-20181203210056-e5f3ab76ea4b // indirect
 	google.golang.org/appengine v1.3.0 // indirect
-	google.golang.org/genproto v0.0.0-20181127195345-31ac5d88444a // indirect
+	google.golang.org/genproto v0.0.0-20181202183823-bd91e49a0898 // indirect
 	google.golang.org/grpc v1.16.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect

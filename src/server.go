@@ -86,6 +86,8 @@ func (s *Server) Routes() *Server {
 		authorized.DELETE("/api/v1/repos/:id/branch/:branch", s.deleteBranchConfigHandler)
 		// Builds
 		authorized.GET("/api/v1/builds/:id", s.getBuildHandler)
+		// Build artifacts
+		authorized.GET("/api/v1/builds/:id/artifact", s.getBuildArtifactHandler)
 		// TODO: /api/v1/repos/:id/builds GET
 	}
 	return s
