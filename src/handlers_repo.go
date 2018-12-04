@@ -50,7 +50,7 @@ func (s *Server) getRepoHandler(c *gin.Context) {
 		return
 	}
 	if repo == nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": "repo not provided"})
+		c.JSON(http.StatusNotFound, gin.H{"err": "repo not found"})
 		return
 	}
 	if repo.UserID != userClaim.ID {

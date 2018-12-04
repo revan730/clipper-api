@@ -114,7 +114,11 @@ type BuildMessage struct {
 	Stdout        string    `json:"stdout"`
 }
 
-func BuildMsgFromBuild(b *commonTypes.Build) (*BuildMessage, error) {
+type BuildArrayMessage struct {
+	Builds []*BuildMessage `json:"builds"`
+}
+
+func BuildMsgFromProto(b *commonTypes.Build) (*BuildMessage, error) {
 	date, err := ptypes.Timestamp(b.Date)
 	if err != nil {
 		return nil, err
@@ -130,6 +134,20 @@ func BuildMsgFromBuild(b *commonTypes.Build) (*BuildMessage, error) {
 	return buildMsg, nil
 }
 
+func BuildArrayMsgFromProto(b *commonTypes.BuildsArray) (*BuildArrayMessage, error) {
+	buildArray := &BuildArrayMessage{}
+
+	for _, build := range b.Builds {
+		buildMsg, err := BuildMsgFromProto(build)
+		if err != nil {
+			return nil, err
+		}
+		buildArray.Builds = append(buildArray.Builds, buildMsg)
+	}
+
+	return buildArray, nil
+}
+
 type PGClientConfig struct {
 	DBAddr        string
 	DB            string
@@ -137,4 +155,10 @@ type PGClientConfig struct {
 	DBPassword    string
 	AdminLogin    string
 	AdminPassword string
+}
+
+type BuildsQueryParams struct {
+	Branch string
+	Page   int
+	Limit  int
 }

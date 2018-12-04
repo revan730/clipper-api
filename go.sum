@@ -44,6 +44,8 @@ github.com/revan730/clipper-common v0.0.0-20181201151709-da47c036ccef h1:kMtf4Cd
 github.com/revan730/clipper-common v0.0.0-20181201151709-da47c036ccef/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
 github.com/revan730/clipper-common v0.0.0-20181204150301-e722a1410b1c h1:X3RnHh31RHVFteZ4w+R5nX9MWTjfgPNMjqjRSISXJ0g=
 github.com/revan730/clipper-common v0.0.0-20181204150301-e722a1410b1c/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
+github.com/revan730/clipper-common v0.0.0-20181204160023-04fc90281225 h1:8Fo7o41l4pd8XOO1VOXs/BpOqsf0fxFNyHnfmwKlVRI=
+github.com/revan730/clipper-common v0.0.0-20181204160023-04fc90281225/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
 github.com/rs/cors v1.6.0 h1:G9tHG9lebljV9mfp9SNPDL36nCDxmo3zTlAf1YgvzmI=
 github.com/rs/cors v1.6.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/spf13/cobra v0.0.3 h1:ZlrZ4XsMRm04Fr5pSFxBgfND2EBVa1nLpiy1stUsX/8=

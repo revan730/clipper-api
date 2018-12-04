@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/revan730/clipper-api/types"
 	commonTypes "github.com/revan730/clipper-common/types"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -36,4 +37,13 @@ func (c *CIClient) GetBuild(buildID int64) (*commonTypes.Build, error) {
 func (c *CIClient) GetBuildArtifact(buildID int64) (*commonTypes.BuildArtifact, error) {
 	return c.gClient.GetBuildArtifact(context.Background(),
 		&commonTypes.BuildArtifact{BuildID: buildID})
+}
+
+func (c *CIClient) GetAllBuilds(repoID int64, params types.BuildsQueryParams) (*commonTypes.BuildsArray, error) {
+	return c.gClient.GetAllBuilds(context.Background(),
+		&commonTypes.BuildsQuery{RepoID: repoID,
+			Branch: params.Branch,
+			Page:   int64(params.Page),
+			Limit:  int64(params.Limit),
+		})
 }
