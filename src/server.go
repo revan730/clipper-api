@@ -24,7 +24,7 @@ type Server struct {
 	config         *types.Config
 	databaseClient db.DatabaseClient
 	ciClient *CIApi.CIClient
-	jobQueue *queue.Queue
+	jobQueue queue.Queue
 	router         *gin.Engine
 }
 
@@ -35,7 +35,7 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 		router: gin.Default(),
 		config: config,
 	}
-	server.jobQueue = queue.NewQueue(config.RabbitAddress)
+	server.jobQueue = queue.NewRMQQueue(config.RabbitAddress)
 	dbConfig := types.PGClientConfig{
 		DBUser:         config.DBUser,
 		DBAddr:         config.DBAddr,
@@ -89,7 +89,6 @@ func (s *Server) Routes() *Server {
 		authorized.GET("/api/v1/builds/:id", s.getBuildHandler)
 		// Build artifacts
 		authorized.GET("/api/v1/builds/:id/artifact", s.getBuildArtifactHandler)
-		// TODO: /api/v1/repos/:id/builds GET
 	}
 	return s
 }
