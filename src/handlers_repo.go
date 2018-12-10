@@ -2,12 +2,24 @@ package src
 
 import (
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 	"github.com/revan730/clipper-api/types"
 )
+
+const repoRegexpStr = `^[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$`
+
+var repoRegexp *regexp.Regexp
+
+func validateRepoName(name string) bool {
+	if repoRegexp == nil {
+		repoRegexp, _ = regexp.Compile(repoRegexpStr)
+	}
+	return repoRegexp.MatchString(name)
+}
 
 func (s *Server) postRepoHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
@@ -18,6 +30,11 @@ func (s *Server) postRepoHandler(c *gin.Context) {
 	}
 	if repoMsg.FullName == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "repo name not provided"})
+		return
+	}
+	ok := validateRepoName(repoMsg.FullName)
+	if ok != true {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "repo name is not valid"})
 		return
 	}
 	err := s.databaseClient.CreateRepo(repoMsg.FullName, userClaim.ID)
