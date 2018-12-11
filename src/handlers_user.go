@@ -13,8 +13,10 @@ import (
 func (s *Server) loginHandler(c *gin.Context) {
 	// Check if login and password are provided
 	loginMsg := &types.CredentialsMessage{}
-	s.bindJSON(c, loginMsg)
-	// TODO: Check bindJSON result
+	bound := s.bindJSON(c, loginMsg)
+	if bound != true {
+		return
+	}
 	if loginMsg.Login == "" || loginMsg.Password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Empty login or password"})
 		return
@@ -52,7 +54,10 @@ func (s *Server) loginHandler(c *gin.Context) {
 func (s *Server) registerHandler(c *gin.Context) {
 	// Check if login and password are provided
 	registerMsg := &types.CredentialsMessage{}
-	s.bindJSON(c, registerMsg)
+	bound := s.bindJSON(c, registerMsg)
+	if bound != true {
+		return
+	}
 	if registerMsg.Login == "" || registerMsg.Password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Empty login or password"})
 		return
