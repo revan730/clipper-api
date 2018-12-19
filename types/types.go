@@ -162,3 +162,31 @@ type BuildsQueryParams struct {
 	Page   int    `form:"page"`
 	Limit  int    `form:"limit"`
 }
+
+type DeploymentMessage struct {
+	Branch     string `json:"branch"`
+	RepoID     int64  `json:"repoID"`
+	ArtifactID int64  `json:"artifactID"`
+	K8SName    string `json:"k8sName"`
+	Manifest   string `json:"manifest"`
+}
+
+func DeploymentMsgFromProto(kd *commonTypes.Deployment) *DeploymentMessage {
+	return &DeploymentMessage{
+		RepoID:     kd.RepoID,
+		Branch:     kd.Branch,
+		ArtifactID: kd.ArtifactID,
+		K8SName:    kd.K8SName,
+		Manifest:   kd.Manifest,
+	}
+}
+
+func ProtoFromDeploymentMsg(d *DeploymentMessage) *commonTypes.Deployment {
+	return &commonTypes.Deployment{
+		RepoID:     d.RepoID,
+		Branch:     d.Branch,
+		ArtifactID: d.ArtifactID,
+		K8SName:    d.K8SName,
+		Manifest:   d.Manifest,
+	}
+}

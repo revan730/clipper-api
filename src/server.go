@@ -15,6 +15,7 @@ import (
 	"github.com/revan730/clipper-api/types"
 	"github.com/revan730/clipper-api/queue"
 	"github.com/revan730/clipper-api/CIApi"
+	"github.com/revan730/clipper-api/CDApi"
 	commonTypes "github.com/revan730/clipper-common/types"
 )
 
@@ -24,6 +25,7 @@ type Server struct {
 	config         *types.Config
 	databaseClient db.DatabaseClient
 	ciClient *CIApi.CIClient
+	cdClient *CDApi.CDClient
 	jobQueue queue.Queue
 	router         *gin.Engine
 }
@@ -48,6 +50,8 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 	server.databaseClient = dbClient
 	ciClient := CIApi.NewClient(config.CIAddress, logger)
 	server.ciClient = ciClient
+	cdClient := CDApi.NewClient(config.CDAddress, logger)
+	server.cdClient = cdClient
 	return server
 }
 
@@ -89,6 +93,8 @@ func (s *Server) Routes() *Server {
 		authorized.GET("/api/v1/builds/:id", s.getBuildHandler)
 		// Build artifacts
 		authorized.GET("/api/v1/builds/:id/artifact", s.getBuildArtifactHandler)
+		// Deployments
+		authorized.POST("/api/v1/deployments", s.postDeploymentHandler)
 	}
 	return s
 }

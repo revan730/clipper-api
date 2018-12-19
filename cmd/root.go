@@ -21,6 +21,7 @@ var (
 	jwtSecret  string
 	rabbitAddr string
 	ciAddr     string
+	cdAddr     string
 )
 
 var rootCmd = &cobra.Command{
@@ -43,6 +44,7 @@ var serveCmd = &cobra.Command{
 			JWTSecret:     jwtSecret,
 			RabbitAddress: rabbitAddr,
 			CIAddress:     ciAddr,
+			CDAddress:     cdAddr,
 		}
 		logger := src.NewLogger(logVerbose)
 		server := src.NewServer(logger, config).Routes()
@@ -80,4 +82,6 @@ func init() {
 		"amqp://guest:guest@localhost:5672", "Set rabbitmq address")
 	serveCmd.Flags().StringVarP(&ciAddr, "ci", "g",
 		"ci-worker:8080", "Set CI gRPC address")
+	serveCmd.Flags().StringVarP(&cdAddr, "cd", "",
+		"cd-worker:8080", "Set CD gRPC address")
 }
