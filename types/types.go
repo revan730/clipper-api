@@ -169,6 +169,7 @@ type DeploymentMessage struct {
 	ArtifactID int64  `json:"artifactID"`
 	K8SName    string `json:"k8sName"`
 	Manifest   string `json:"manifest"`
+	Replicas   int64  `json:"replicas"`
 }
 
 func DeploymentMsgFromProto(kd *commonTypes.Deployment) *DeploymentMessage {
@@ -178,6 +179,7 @@ func DeploymentMsgFromProto(kd *commonTypes.Deployment) *DeploymentMessage {
 		ArtifactID: kd.ArtifactID,
 		K8SName:    kd.K8SName,
 		Manifest:   kd.Manifest,
+		Replicas:   kd.Replicas,
 	}
 }
 
@@ -188,5 +190,6 @@ func ProtoFromDeploymentMsg(d *DeploymentMessage) *commonTypes.Deployment {
 		ArtifactID: d.ArtifactID,
 		K8SName:    d.K8SName,
 		Manifest:   d.Manifest,
+		Replicas:   d.Replicas,
 	}
 }
