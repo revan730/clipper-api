@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"github.com/rs/cors"
 
 	"github.com/revan730/clipper-api/db"
+	"github.com/revan730/clipper-api/log"
 	"github.com/revan730/clipper-api/types"
 	"github.com/revan730/clipper-api/queue"
 	"github.com/revan730/clipper-api/CIApi"
@@ -21,7 +21,7 @@ import (
 
 // Server holds application API server
 type Server struct {
-	logger         *zap.Logger
+	log         log.Logger
 	config         *types.Config
 	databaseClient db.DatabaseClient
 	ciClient *CIApi.CIClient
@@ -31,9 +31,9 @@ type Server struct {
 }
 
 // NewServer creates new copy of Server
-func NewServer(logger *zap.Logger, config *types.Config) *Server {
+func NewServer(logger log.Logger, config *types.Config) *Server {
 	server := &Server{
-		logger: logger,
+		log: logger,
 		router: gin.Default(),
 		config: config,
 	}
@@ -53,16 +53,6 @@ func NewServer(logger *zap.Logger, config *types.Config) *Server {
 	cdClient := CDApi.NewClient(config.CDAddress, logger)
 	server.cdClient = cdClient
 	return server
-}
-
-func (s *Server) logError(msg string, err error) {
-	defer s.logger.Sync()
-	s.logger.Error(msg, zap.String("packageLevel", "core"), zap.Error(err))
-}
-
-func (s *Server) logInfo(msg string) {
-	defer s.logger.Sync()
-	s.logger.Info("INFO", zap.String("msg", msg), zap.String("packageLevel", "core"))
 }
 
 // Routes binds api routes to handlers
@@ -105,14 +95,14 @@ func (s *Server) Run() {
 	rand.Seed(time.Now().UnixNano())
 	err := s.databaseClient.CreateSchema()
 	if err != nil {
-		s.logError("Failed to create database schema", err)
+		s.log.Error("Failed to create database schema", err)
 		os.Exit(1)
 	}
-	s.logger.Info("Starting server", zap.Int("port", s.config.Port))
+	s.log.Info(fmt.Sprintf("Starting server at port %d", s.config.Port))
 	corsRouter := cors.Default().Handler(s.router)
 	err = http.ListenAndServe(fmt.Sprintf(":%d", s.config.Port), corsRouter)
 	if err != nil {
-		s.logError("Server failed", err)
+		s.log.Error("Server failed", err)
 		os.Exit(1)
 	}
 }
@@ -120,7 +110,7 @@ func (s *Server) Run() {
 func (s *Server) bindJSON(c *gin.Context, msg interface{}) bool {
 	err := c.ShouldBindJSON(&msg)
 	if err != nil {
-		s.logError("JSON read error", err)
+		s.log.Error("JSON read error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"err": "Bad json"})
 		return false
 	}
@@ -128,6 +118,6 @@ func (s *Server) bindJSON(c *gin.Context, msg interface{}) bool {
 }
 
 func (s *Server) startCIJob(ciMsg commonTypes.CIJob) error {
-	s.logInfo("Starting CI Job")
+	s.log.Info("Starting CI Job")
 	return s.jobQueue.PublishCIJob(&ciMsg)
 }

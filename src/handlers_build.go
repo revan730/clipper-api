@@ -25,13 +25,13 @@ func (s *Server) getBuildHandler(c *gin.Context) {
 				return
 			}
 		}
-		s.logError("Find build error", err)
+		s.log.Error("Find build error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	buildMsg, err := types.BuildMsgFromProto(build)
 	if err != nil {
-		s.logError("Failed to make build message", err)
+		s.log.Error("Failed to make build message", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 	}
 	c.JSON(http.StatusOK, buildMsg)
@@ -55,13 +55,13 @@ func (s *Server) getAllBuildsHandler(c *gin.Context) {
 	}
 	builds, err := s.ciClient.GetAllBuilds(int64(repoID), *params)
 	if err != nil {
-		s.logError("Find build error", err)
+		s.log.Error("Find build error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	buildArrayMsg, err := types.BuildArrayMsgFromProto(builds)
 	if err != nil {
-		s.logError("Failed to make build array message", err)
+		s.log.Error("Failed to make build array message", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 	}
 	c.JSON(http.StatusOK, buildArrayMsg)

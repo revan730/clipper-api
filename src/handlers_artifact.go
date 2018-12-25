@@ -24,7 +24,7 @@ func (s *Server) getBuildArtifactHandler(c *gin.Context) {
 				return
 			}
 		}
-		s.logError("Find build artifact error", err)
+		s.log.Error("Find build artifact error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

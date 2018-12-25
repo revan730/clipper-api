@@ -38,7 +38,7 @@ func (s *Server) getClaimByName(c *gin.Context, name string) interface{} {
 func (s *Server) getUserLoginClaim(c *gin.Context) (string, bool) {
 	login, ok := s.getClaimByName(c, "user").(string)
 	if ok == false {
-		s.logInfo("Failed to get user login claim")
+		s.log.Info("Failed to get user login claim")
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return "", false
 	}
@@ -48,7 +48,7 @@ func (s *Server) getUserLoginClaim(c *gin.Context) (string, bool) {
 func (s *Server) getUserIDClaim(c *gin.Context) (int64, bool) {
 	userID, ok := s.getClaimByName(c, "userID").(float64)
 	if ok == false {
-		s.logInfo("Failed to get userID claim")
+		s.log.Info("Failed to get userID claim")
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return 0, false
 	}
@@ -58,7 +58,7 @@ func (s *Server) getUserIDClaim(c *gin.Context) (int64, bool) {
 func (s *Server) getUserAdminClaim(c *gin.Context) (bool, bool) {
 	isAdmin, ok := s.getClaimByName(c, "admin").(bool)
 	if ok == false {
-		s.logInfo("Failed to get user admin claim")
+		s.log.Info("Failed to get user admin claim")
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return false, false
 	}

@@ -45,7 +45,7 @@ func (s *Server) postRepoHandler(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"err": "Repo already exists"})
 			return
 		}
-		s.logError("Create repo error", err)
+		s.log.Error("Create repo error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -62,7 +62,7 @@ func (s *Server) getRepoHandler(c *gin.Context) {
 	}
 	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
 	if err != nil {
-		s.logError("Find repo error", err)
+		s.log.Error("Find repo error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -80,7 +80,7 @@ func (s *Server) getAllReposHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	repos, err := s.databaseClient.FindAllUserRepos(userClaim.ID, c.Request.URL.Query())
 	if err != nil {
-		s.logError("Find repos error", err)
+		s.log.Error("Find repos error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -100,7 +100,7 @@ func (s *Server) deleteRepoHandler(c *gin.Context) {
 	// token itself, no need to guess
 	user, err := s.databaseClient.FindUserByID(userClaim.ID)
 	if err != nil {
-		s.logError("Find user error", err)
+		s.log.Error("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -110,7 +110,7 @@ func (s *Server) deleteRepoHandler(c *gin.Context) {
 	}
 	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
 	if err != nil {
-		s.logError("Find repo error", err)
+		s.log.Error("Find repo error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -127,7 +127,7 @@ func (s *Server) deleteRepoHandler(c *gin.Context) {
 	// TODO: Explicitly handle missing repo error
 	err = s.databaseClient.DeleteRepoByID(int64(repoID))
 	if err != nil {
-		s.logError("Delete repo error", err)
+		s.log.Error("Delete repo error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -2,29 +2,28 @@ package CDApi
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/revan730/clipper-api/log"
 	"github.com/revan730/clipper-api/types"
 	commonTypes "github.com/revan730/clipper-common/types"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
 type CDClient struct {
 	gClient commonTypes.CDAPIClient
-	logger  *zap.Logger
+	log     log.Logger
 }
 
-func NewClient(address string, logger *zap.Logger) *CDClient {
+func NewClient(address string, logger log.Logger) *CDClient {
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
-		panic(fmt.Sprintf("Couldn't connect to CD gRPC: %s", err))
+		logger.Fatal("Couldn't connect to CD gRPC", err)
 	}
 
 	c := commonTypes.NewCDAPIClient(conn)
 	client := &CDClient{
 		gClient: c,
-		logger:  logger,
+		log:     logger,
 	}
 	return client
 }

@@ -17,7 +17,7 @@ func (s *Server) postDeploymentHandler(c *gin.Context) {
 	// TODO: Check if repo and artifact belongs to user
 	err := s.cdClient.CreateDeployment(deploymentMsg)
 	if err != nil {
-		s.logError("Create deployment error", err)
+		s.log.Error("Create deployment error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

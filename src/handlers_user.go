@@ -23,7 +23,7 @@ func (s *Server) loginHandler(c *gin.Context) {
 	}
 	user, err := s.databaseClient.FindUser(loginMsg.Login)
 	if err != nil {
-		s.logError("Find user error", err)
+		s.log.Error("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -45,7 +45,7 @@ func (s *Server) loginHandler(c *gin.Context) {
 
 	tokenString, err := token.SignedString([]byte(s.config.JWTSecret))
 	if err != nil {
-		s.logError("jwt error", err)
+		s.log.Error("jwt error", err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
@@ -70,7 +70,7 @@ func (s *Server) registerHandler(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"err": "User already exists"})
 			return
 		}
-		s.logError("Create user error", err)
+		s.log.Error("Create user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -90,7 +90,7 @@ func (s *Server) setSecretHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	user, err := s.databaseClient.FindUser(userClaim.Login)
 	if err != nil {
-		s.logError("Find user error", err)
+		s.log.Error("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -101,7 +101,7 @@ func (s *Server) setSecretHandler(c *gin.Context) {
 	user.WebhookSecret = secretMsg.Secret
 	err = s.databaseClient.SaveUser(user)
 	if err != nil {
-		s.logError("User save error", err)
+		s.log.Error("User save error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -121,7 +121,7 @@ func (s *Server) setAccessTokenHandler(c *gin.Context) {
 	userClaim := c.MustGet("userClaim").(types.User)
 	user, err := s.databaseClient.FindUser(userClaim.Login)
 	if err != nil {
-		s.logError("Find user error", err)
+		s.log.Error("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -132,7 +132,7 @@ func (s *Server) setAccessTokenHandler(c *gin.Context) {
 	user.AccessToken = tokenMsg.Token
 	err = s.databaseClient.SaveUser(user)
 	if err != nil {
-		s.logError("User save error", err)
+		s.log.Error("User save error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

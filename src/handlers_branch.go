@@ -18,7 +18,7 @@ func (s *Server) postBranchConfigHandler(c *gin.Context) {
 	}
 	user, err := s.databaseClient.FindUserByID(userClaim.ID)
 	if err != nil {
-		s.logError("Find user error", err)
+		s.log.Error("Find user error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -31,7 +31,7 @@ func (s *Server) postBranchConfigHandler(c *gin.Context) {
 	// repo id
 	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
 	if err != nil {
-		s.logError("Find repo error", err)
+		s.log.Error("Find repo error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -57,7 +57,7 @@ func (s *Server) postBranchConfigHandler(c *gin.Context) {
 	// Check if config for this branch already exists for this repo
 	conf, err := s.databaseClient.FindBranchConfig(int64(repoID), branchMsg.BranchName)
 	if err != nil {
-		s.logError("Find branch config error", err)
+		s.log.Error("Find branch config error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -72,7 +72,7 @@ func (s *Server) postBranchConfigHandler(c *gin.Context) {
 	}
 	err = s.databaseClient.CreateBranchConfig(&branchConf)
 	if err != nil {
-		s.logError("Create branch config error", err)
+		s.log.Error("Create branch config error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -90,7 +90,7 @@ func (s *Server) getAllBranchConfigsHandler(c *gin.Context) {
 	// Check if user owns this repo
 	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
 	if err != nil {
-		s.logError("Find repo error", err)
+		s.log.Error("Find repo error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -106,7 +106,7 @@ func (s *Server) getAllBranchConfigsHandler(c *gin.Context) {
 	}
 	configs, err := s.databaseClient.FindAllBranchConfigs(repo.ID, c.Request.URL.Query())
 	if err != nil {
-		s.logError("Find branch configs error", err)
+		s.log.Error("Find branch configs error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -125,7 +125,7 @@ func (s *Server) deleteBranchConfigHandler(c *gin.Context) {
 	// Check if user owns this repo
 	repo, err := s.databaseClient.FindRepoByID(int64(repoID))
 	if err != nil {
-		s.logError("Find repo error", err)
+		s.log.Error("Find repo error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -142,7 +142,7 @@ func (s *Server) deleteBranchConfigHandler(c *gin.Context) {
 	err = s.databaseClient.DeleteBranchConfig(int64(repoID), branchName)
 	// TODO: Explicitly handle missing branch config error
 	if err != nil {
-		s.logError("Delete branch config error", err)
+		s.log.Error("Delete branch config error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

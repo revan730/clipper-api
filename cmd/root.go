@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/revan730/clipper-api/src"
+	"github.com/revan730/clipper-api/log"
 	"github.com/revan730/clipper-api/types"
 	"github.com/spf13/cobra"
 )
@@ -46,7 +47,7 @@ var serveCmd = &cobra.Command{
 			CIAddress:     ciAddr,
 			CDAddress:     cdAddr,
 		}
-		logger := src.NewLogger(logVerbose)
+		logger := log.NewLogger(logVerbose)
 		server := src.NewServer(logger, config).Routes()
 		server.Run()
 	},
