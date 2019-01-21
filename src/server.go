@@ -85,6 +85,7 @@ func (s *Server) Routes() *Server {
 		authorized.GET("/api/v1/builds/:id/artifact", s.getBuildArtifactHandler)
 		// Deployments
 		authorized.POST("/api/v1/deployments", s.postDeploymentHandler)
+		authorized.DELETE("/api/v1/deployments/:id", s.deleteDeploymentHandler)
 	}
 	return s
 }

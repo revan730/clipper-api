@@ -4,6 +4,7 @@ import (
 	"net/url"
 
 	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/urlvalues"
 	"github.com/go-pg/pg/orm"
 	"github.com/revan730/clipper-api/types"
 	"golang.org/x/crypto/bcrypt"
@@ -190,9 +191,10 @@ func (d *PostgresClient) DeleteRepoByID(repoID int64) error {
 // with pagination support (by passing query params of request)
 func (d *PostgresClient) FindAllUserRepos(userID int64, q url.Values) ([]types.GithubRepo, error) {
 	var repos []types.GithubRepo
+	vals := urlvalues.Values(q)
 
 	err := d.pg.Model(&repos).
-		Apply(orm.Pagination(q)).
+		Apply(urlvalues.Pagination(vals)).
 		Where("user_id = ?", userID).
 		Select()
 
@@ -245,9 +247,10 @@ func (d *PostgresClient) DeleteBranchConfigByID(configID int64) error {
 // with pagination support (by passing query params of request)
 func (d *PostgresClient) FindAllBranchConfigs(repoID int64, q url.Values) ([]types.BranchConfig, error) {
 	var configs []types.BranchConfig
+	vals := urlvalues.Values(q)
 
 	err := d.pg.Model(&configs).
-		Apply(orm.Pagination(q)).
+		Apply(urlvalues.Pagination(vals)).
 		Where("github_repo_id = ?", repoID).
 		Select()
 

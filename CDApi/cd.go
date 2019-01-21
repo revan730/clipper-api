@@ -33,3 +33,11 @@ func (c *CDClient) CreateDeployment(d *types.DeploymentMessage) error {
 	_, err := c.gClient.CreateDeployment(context.Background(), protoMsg)
 	return err
 }
+
+func (c *CDClient) DeleteDeployment(deploymentID int64) error {
+	protoMsg := &commonTypes.Deployment{
+		ID: deploymentID,
+	}
+	_, err := c.gClient.DeleteDeployment(context.Background(), protoMsg)
+	return err
+}
