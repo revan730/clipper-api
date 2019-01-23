@@ -65,23 +65,23 @@ func init() {
 	rootCmd.AddCommand(serveCmd)
 	serveCmd.Flags().IntVarP(&serverPort, "port", "p", 8080,
 		"Application TCP port")
-	serveCmd.Flags().StringVarP(&dbAddr, "postgresAddr", "a",
+	serveCmd.Flags().StringVarP(&dbAddr, "dbAddr", "",
 		"postgres:5432", "Set PostsgreSQL address")
-	serveCmd.Flags().StringVarP(&db, "db", "d",
+	serveCmd.Flags().StringVarP(&db, "db", "",
 		"clipper", "Set PostgreSQL database to use")
-	serveCmd.Flags().StringVarP(&dbUser, "user", "u",
+	serveCmd.Flags().StringVarP(&dbUser, "user", "",
 		"clipper", "Set PostgreSQL user to use")
-	serveCmd.Flags().StringVarP(&dbPass, "pass", "c",
+	serveCmd.Flags().StringVarP(&dbPass, "pass", "",
 		"clipper", "Set PostgreSQL password to use")
-	serveCmd.Flags().StringVarP(&adminLogin, "adminlogin", "l",
+	serveCmd.Flags().StringVarP(&adminLogin, "adminlogin", "",
 		"admin", "Set default admin login")
-	serveCmd.Flags().StringVarP(&adminPass, "adminpass", "x",
+	serveCmd.Flags().StringVarP(&adminPass, "adminpass", "",
 		"admin", "Set default admin pass")
-	serveCmd.Flags().StringVarP(&jwtSecret, "jwt", "j",
+	serveCmd.Flags().StringVarP(&jwtSecret, "jwt", "",
 		"veryverysecret", "Set jwt secret")
-	serveCmd.Flags().StringVarP(&rabbitAddr, "rabbitmq", "t",
+	serveCmd.Flags().StringVarP(&rabbitAddr, "rabbitmq", "",
 		"amqp://guest:guest@localhost:5672", "Set rabbitmq address")
-	serveCmd.Flags().StringVarP(&ciAddr, "ci", "g",
+	serveCmd.Flags().StringVarP(&ciAddr, "ci", "",
 		"ci-worker:8080", "Set CI gRPC address")
 	serveCmd.Flags().StringVarP(&cdAddr, "cd", "",
 		"cd-worker:8080", "Set CD gRPC address")
