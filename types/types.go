@@ -177,6 +177,14 @@ type ImageMessage struct {
 	ImageID int64 `json:"imageID"`
 }
 
+type ScaleMessage struct {
+	Replicas int64 `json:"replicas"`
+}
+
+type ManifestMessage struct {
+	Manifest string `json:"Manifest"`
+}
+
 func DeploymentMsgFromProto(kd *commonTypes.Deployment) *DeploymentMessage {
 	return &DeploymentMessage{
 		ID:         kd.ID,

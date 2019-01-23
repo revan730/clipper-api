@@ -47,3 +47,15 @@ func (c *CDClient) UpdateImage(d *types.DeploymentMessage) error {
 	_, err := c.gClient.ChangeImage(context.Background(), protoMsg)
 	return err
 }
+
+func (c *CDClient) ScaleDeployment(d *types.DeploymentMessage) error {
+	protoMsg := types.ProtoFromDeploymentMsg(d)
+	_, err := c.gClient.ScaleDeployment(context.Background(), protoMsg)
+	return err
+}
+
+func (c *CDClient) UpdateManifest(d *types.DeploymentMessage) error {
+	protoMsg := types.ProtoFromDeploymentMsg(d)
+	_, err := c.gClient.UpdateManifest(context.Background(), protoMsg)
+	return err
+}
