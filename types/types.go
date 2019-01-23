@@ -164,6 +164,7 @@ type BuildsQueryParams struct {
 }
 
 type DeploymentMessage struct {
+	ID         int64  `json:"ID"`
 	Branch     string `json:"branch"`
 	RepoID     int64  `json:"repoID"`
 	ArtifactID int64  `json:"artifactID"`
@@ -172,8 +173,13 @@ type DeploymentMessage struct {
 	Replicas   int64  `json:"replicas"`
 }
 
+type ImageMessage struct {
+	ImageID int64 `json:"imageID"`
+}
+
 func DeploymentMsgFromProto(kd *commonTypes.Deployment) *DeploymentMessage {
 	return &DeploymentMessage{
+		ID:         kd.ID,
 		RepoID:     kd.RepoID,
 		Branch:     kd.Branch,
 		ArtifactID: kd.ArtifactID,
@@ -185,6 +191,7 @@ func DeploymentMsgFromProto(kd *commonTypes.Deployment) *DeploymentMessage {
 
 func ProtoFromDeploymentMsg(d *DeploymentMessage) *commonTypes.Deployment {
 	return &commonTypes.Deployment{
+		ID:         d.ID,
 		RepoID:     d.RepoID,
 		Branch:     d.Branch,
 		ArtifactID: d.ArtifactID,

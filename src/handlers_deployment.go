@@ -41,3 +41,29 @@ func (s *Server) deleteDeploymentHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
+
+func (s *Server) changeDeploymentImageHandler(c *gin.Context) {
+	depIDStr := c.Param("id")
+	depID, err := strconv.ParseInt(depIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "deployment id is not int"})
+		return
+	}
+	imageMsg := &types.ImageMessage{}
+	bound := s.bindJSON(c, imageMsg)
+	if bound != true {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "bad json"})
+		return
+	}
+	rpcMsg := &types.DeploymentMessage{
+		ID:         depID,
+		ArtifactID: imageMsg.ImageID,
+	}
+	err = s.cdClient.UpdateImage(rpcMsg)
+	if err != nil {
+		s.log.Error("Update deployment image error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"err": nil})
+}

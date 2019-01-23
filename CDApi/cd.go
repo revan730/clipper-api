@@ -41,3 +41,9 @@ func (c *CDClient) DeleteDeployment(deploymentID int64) error {
 	_, err := c.gClient.DeleteDeployment(context.Background(), protoMsg)
 	return err
 }
+
+func (c *CDClient) UpdateImage(d *types.DeploymentMessage) error {
+	protoMsg := types.ProtoFromDeploymentMsg(d)
+	_, err := c.gClient.ChangeImage(context.Background(), protoMsg)
+	return err
+}

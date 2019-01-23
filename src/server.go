@@ -86,6 +86,7 @@ func (s *Server) Routes() *Server {
 		// Deployments
 		authorized.POST("/api/v1/deployments", s.postDeploymentHandler)
 		authorized.DELETE("/api/v1/deployments/:id", s.deleteDeploymentHandler)
+		authorized.POST("/api/v1/deployments/:id/image", s.changeDeploymentImageHandler)
 	}
 	return s
 }
