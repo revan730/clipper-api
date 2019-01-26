@@ -63,33 +63,40 @@ func (s *Server) Routes() *Server {
 	s.router.POST("/api/v1/octohook/:user", s.webhookHandler)
 
 	jwtSecret := []byte(s.config.JWTSecret)
-	authorized := s.router.Group("/")
-	authorized.Use(jwtMiddleware(jwtSecret), s.userClaimMiddleware)
+	authorized := s.router.Group("/api/v1/")
+	authorized.Use(s.jwtMiddleware(jwtSecret), s.userClaimMiddleware)
 	{
 		// User
-		authorized.POST("/api/v1/user/secret", s.setSecretHandler)
-		authorized.POST("/api/v1/user/accessToken", s.setAccessTokenHandler)
+		authorized.POST("user/secret", s.setSecretHandler)
+		authorized.POST("user/accessToken", s.setAccessTokenHandler)
 		// Github repos
-		authorized.POST("/api/v1/repos", s.postRepoHandler)
-		authorized.GET("/api/v1/repos", s.getAllReposHandler)
-		authorized.GET("/api/v1/repos/:id", s.getRepoHandler)
-		authorized.DELETE("/api/v1/repos/:id", s.deleteRepoHandler)
+		authorized.POST("repos", s.postRepoHandler)
+		authorized.GET("repos", s.getAllReposHandler)
+		authorized.GET("repos/:id", s.getRepoHandler)
+		authorized.DELETE("repos/:id", s.deleteRepoHandler)
 		// Repo configs
-		authorized.POST("/api/v1/repos/:id/branch", s.postBranchConfigHandler)
-		authorized.GET("/api/v1/repos/:id/branch", s.getAllBranchConfigsHandler)
-		authorized.DELETE("/api/v1/repos/:id/branch/:branch", s.deleteBranchConfigHandler)
-		authorized.GET("/api/v1/repos/:id/builds", s.getAllBuildsHandler)
+		authorized.POST("repos/:id/branch", s.postBranchConfigHandler)
+		authorized.GET("repos/:id/branch", s.getAllBranchConfigsHandler)
+		authorized.DELETE("repos/:id/branch/:branch", s.deleteBranchConfigHandler)
+		authorized.GET("repos/:id/builds", s.getAllBuildsHandler)
 		// Builds
-		authorized.GET("/api/v1/builds/:id", s.getBuildHandler)
+		authorized.GET("builds/:id", s.getBuildHandler)
 		// Build artifacts
-		authorized.GET("/api/v1/builds/:id/artifact", s.getBuildArtifactHandler)
-		// Deployments
-		authorized.POST("/api/v1/deployments", s.postDeploymentHandler)
-		authorized.DELETE("/api/v1/deployments/:id", s.deleteDeploymentHandler)
-		authorized.POST("/api/v1/deployments/:id/image", s.changeDeploymentImageHandler)
-		authorized.POST("/api/v1/deployments/:id/scale", s.scaleDeploymentHandler)
-		authorized.POST("/api/v1/deployments/:id/manifest", s.updateManifestHandler)
+		authorized.GET("builds/:id/artifact", s.getBuildArtifactHandler)
+
+		admin := authorized.Group("admin")
+		admin.Use(s.userIsAdminMiddleware)
+		{
+			// Deployments
+			admin.POST("deployments",s.postDeploymentHandler)
+			admin.DELETE("deployments/:id", s.deleteDeploymentHandler)
+			admin.POST("deployments/:id/image", s.changeDeploymentImageHandler)
+			admin.POST("deployments/:id/scale", s.scaleDeploymentHandler)
+			admin.POST("deployments/:id/manifest", s.updateManifestHandler)
+		}
+
 	}
+
 	return s
 }
 

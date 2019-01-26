@@ -9,7 +9,7 @@ import (
 	"github.com/revan730/clipper-api/types"
 )
 
-func jwtMiddleware(secret []byte) gin.HandlerFunc {
+func (s *Server) jwtMiddleware(secret []byte) gin.HandlerFunc {
 	// TODO: Json error handler
 	var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
@@ -20,6 +20,8 @@ func jwtMiddleware(secret []byte) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		err := jwtMiddleware.CheckJWT(c.Writer, c.Request)
 		if err != nil {
+			s.log.Error("Failed to check JWT token", err)
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		c.Next()
@@ -84,5 +86,14 @@ func (s *Server) userClaimMiddleware(c *gin.Context) {
 		Login:   login,
 	}
 	c.Set("userClaim", user)
+	c.Next()
+}
+
+func (s *Server) userIsAdminMiddleware(c *gin.Context) {
+	userClaim := c.MustGet("userClaim").(types.User)
+	if userClaim.IsAdmin != true {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "Admin-only access"})
+		return
+	}
 	c.Next()
 }
