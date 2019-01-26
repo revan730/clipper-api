@@ -49,6 +49,29 @@ func (s *Server) getDeploymentHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, dep)
 }
 
+func (s *Server) getAllDeploymentsHandler(c *gin.Context) {
+	params := &types.DeploymentsQueryParams{
+		Page:   1,
+		Limit:  20,
+	}
+	err := c.ShouldBind(params)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+	}
+	deps, err := s.cdClient.GetAllDeployments(*params)
+	if err != nil {
+		s.log.Error("Find deployments error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	deploymentArrayMsg, err := types.DeploymentArrayMsgFromProto(deps)
+	if err != nil {
+		s.log.Error("Failed to make deployment array message", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+	}
+	c.JSON(http.StatusOK, deploymentArrayMsg)
+}
+
 func (s *Server) deleteDeploymentHandler(c *gin.Context) {
 	depIDStr := c.Param("id")
 	depID, err := strconv.ParseInt(depIDStr, 10, 64)

@@ -88,6 +88,7 @@ func (s *Server) Routes() *Server {
 		admin.Use(s.userIsAdminMiddleware)
 		{
 			// Deployments
+			admin.GET("deployments", s.getAllDeploymentsHandler)
 			admin.POST("deployments",s.postDeploymentHandler)
 			admin.GET("deployments/:id", s.getDeploymentHandler)
 			admin.DELETE("deployments/:id", s.deleteDeploymentHandler)

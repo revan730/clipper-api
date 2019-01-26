@@ -163,6 +163,11 @@ type BuildsQueryParams struct {
 	Limit  int    `form:"limit"`
 }
 
+type DeploymentsQueryParams struct {
+	Page  int `form:"page"`
+	Limit int `form:"limit"`
+}
+
 type DeploymentMessage struct {
 	ID         int64  `json:"ID"`
 	Branch     string `json:"branch"`
@@ -171,6 +176,21 @@ type DeploymentMessage struct {
 	K8SName    string `json:"k8sName"`
 	Manifest   string `json:"manifest"`
 	Replicas   int64  `json:"replicas"`
+}
+
+type DeploymentArrayMessage struct {
+	Deployments []*DeploymentMessage `json:"deployments"`
+}
+
+func DeploymentArrayMsgFromProto(d *commonTypes.DeploymentsArray) (*DeploymentArrayMessage, error) {
+	depsArray := &DeploymentArrayMessage{}
+
+	for _, dep := range d.Deployments {
+		depMsg := DeploymentMsgFromProto(dep)
+		depsArray.Deployments = append(depsArray.Deployments, depMsg)
+	}
+
+	return depsArray, nil
 }
 
 type ImageMessage struct {

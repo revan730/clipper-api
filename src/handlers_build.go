@@ -55,7 +55,7 @@ func (s *Server) getAllBuildsHandler(c *gin.Context) {
 	}
 	builds, err := s.ciClient.GetAllBuilds(int64(repoID), *params)
 	if err != nil {
-		s.log.Error("Find build error", err)
+		s.log.Error("Find builds error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}

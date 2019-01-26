@@ -41,6 +41,14 @@ func (c *CDClient) GetDeployment(deploymentID int64) (*commonTypes.Deployment, e
 	return c.gClient.GetDeployment(context.Background(), protoMsg)
 }
 
+func (c *CDClient) GetAllDeployments(params types.DeploymentsQueryParams) (*commonTypes.DeploymentsArray, error) {
+	return c.gClient.GetAllDeployments(context.Background(),
+	&commonTypes.DeploymentsQuery{
+		Page:   int64(params.Page),
+		Limit:  int64(params.Limit),
+	})
+}
+
 func (c *CDClient) DeleteDeployment(deploymentID int64) error {
 	protoMsg := &commonTypes.Deployment{
 		ID: deploymentID,
