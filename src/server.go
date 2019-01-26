@@ -89,6 +89,7 @@ func (s *Server) Routes() *Server {
 		{
 			// Deployments
 			admin.POST("deployments",s.postDeploymentHandler)
+			admin.GET("deployments/:id", s.getDeploymentHandler)
 			admin.DELETE("deployments/:id", s.deleteDeploymentHandler)
 			admin.POST("deployments/:id/image", s.changeDeploymentImageHandler)
 			admin.POST("deployments/:id/scale", s.scaleDeploymentHandler)
