@@ -181,6 +181,8 @@ github.com/revan730/clipper-common v0.0.0-20190127193438-e47d377f8899 h1:dpfAGx4
 github.com/revan730/clipper-common v0.0.0-20190127193438-e47d377f8899/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
 github.com/revan730/clipper-common v0.0.0-20190127200444-b6f50817a070 h1:yDoU8BlMlocnt3z1vOobXDS9dxOKcWcBZeAU9Z+tUaA=
 github.com/revan730/clipper-common v0.0.0-20190127200444-b6f50817a070/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
+github.com/revan730/clipper-common v0.0.0-20190127204355-baca036bda12 h1:70JgOJo/N6B/tKpLYY9eHMr7oIEcdaVmqS33Tuiwtmw=
+github.com/revan730/clipper-common v0.0.0-20190127204355-baca036bda12/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
 github.com/rs/cors v1.6.0 h1:G9tHG9lebljV9mfp9SNPDL36nCDxmo3zTlAf1YgvzmI=
 github.com/rs/cors v1.6.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=

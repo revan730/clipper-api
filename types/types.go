@@ -115,6 +115,7 @@ type BuildMessage struct {
 }
 
 type BuildArrayMessage struct {
+	Total  int64           `json:"total"`
 	Builds []*BuildMessage `json:"builds"`
 }
 
@@ -144,7 +145,7 @@ func BuildArrayMsgFromProto(b *commonTypes.BuildsArray) (*BuildArrayMessage, err
 		}
 		buildArray.Builds = append(buildArray.Builds, buildMsg)
 	}
-
+	buildArray.Total = b.Total
 	return buildArray, nil
 }
 
@@ -179,7 +180,7 @@ type DeploymentMessage struct {
 }
 
 type DeploymentArrayMessage struct {
-	Total     int64              `json:"total"`
+	Total       int64                `json:"total"`
 	Deployments []*DeploymentMessage `json:"deployments"`
 }
 
