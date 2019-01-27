@@ -8,6 +8,7 @@ dmitri.shuralyov.com/app/changes v0.0.0-20181114035150-5af16e21babb/go.mod h1:Yl
 dmitri.shuralyov.com/html/belt v0.0.0-20180602232347-f7d459c86be0/go.mod h1:JLBrvjyP0v+ecvNYvCpyZgu5/xkfAUhi6wJj28eUfSU=
 dmitri.shuralyov.com/service/change v0.0.0-20181023043359-a85b471d5412/go.mod h1:a1inKt/atXimZ4Mv927x+r7UpyzRUf4emIoiiSC2TN4=
 dmitri.shuralyov.com/service/change v0.0.0-20190125044705-3bb9b99b3801/go.mod h1:a1inKt/atXimZ4Mv927x+r7UpyzRUf4emIoiiSC2TN4=
+dmitri.shuralyov.com/service/change v0.0.0-20190127173012-184eb3bb42b2/go.mod h1:a1inKt/atXimZ4Mv927x+r7UpyzRUf4emIoiiSC2TN4=
 dmitri.shuralyov.com/state v0.0.0-20180228185332-28bcc343414c/go.mod h1:0PRwlb0D6DFvNNtx+9ybjezNCa8XF0xaYcETyp6rHWU=
 git.apache.org/thrift.git v0.0.0-20180902110319-2566ecd5d999/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
 git.apache.org/thrift.git v0.0.0-20181218151757-9b75e4fe745a/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
@@ -176,6 +177,8 @@ github.com/revan730/clipper-common v0.0.0-20190126205252-e85b078382ea h1:NNwWKpW
 github.com/revan730/clipper-common v0.0.0-20190126205252-e85b078382ea/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
 github.com/revan730/clipper-common v0.0.0-20190127141914-063d06706ce5 h1:YCntet4Ay/FLfXH2J5oFAesOes000HzW1OGcesnYsfs=
 github.com/revan730/clipper-common v0.0.0-20190127141914-063d06706ce5/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
+github.com/revan730/clipper-common v0.0.0-20190127193438-e47d377f8899 h1:dpfAGx4tbTHhNGkJOgwzcEqjxsWY1UtPo7kIMjHgehw=
+github.com/revan730/clipper-common v0.0.0-20190127193438-e47d377f8899/go.mod h1:BxwJ1Y6nYIS+CIveHKhhDVpwnzqmq1BtZhxE5kZDMXY=
 github.com/rs/cors v1.6.0 h1:G9tHG9lebljV9mfp9SNPDL36nCDxmo3zTlAf1YgvzmI=
 github.com/rs/cors v1.6.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
@@ -368,6 +371,8 @@ google.golang.org/genproto v0.0.0-20190111180523-db91494dd46c/go.mod h1:7Ep/1NZk
 google.golang.org/genproto v0.0.0-20190122154452-ba6ebe99b011/go.mod h1:7Ep/1NZk928CDR8SjdVbjWNpdIf6nzjE3BTgJDr2Atg=
 google.golang.org/genproto v0.0.0-20190123001331-8819c946db44 h1:9u28q5XSBq/QWKRyrhsE2pOAKf+5fR68Vj5prhzqUYY=
 google.golang.org/genproto v0.0.0-20190123001331-8819c946db44/go.mod h1:L3J43x8/uS+qIUoksaLKe6OS3nUKxOKuIFz1sl2/jx4=
+google.golang.org/genproto v0.0.0-20190127191240-7cdc0b958d75 h1:wVTF/hRMJJh89Vzk2rjhbUpWB7Eq6BUtRwRBJi3nz0E=
+google.golang.org/genproto v0.0.0-20190127191240-7cdc0b958d75/go.mod h1:L3J43x8/uS+qIUoksaLKe6OS3nUKxOKuIFz1sl2/jx4=
 google.golang.org/grpc v1.14.0/go.mod h1:yo6s7OP7yaDglbqo1J04qKzAhqBH6lvTonzMVmEdcZw=
 google.golang.org/grpc v1.16.0 h1:dz5IJGuC2BB7qXR5AyHNwAUBhZscK2xVez7mznh72sY=
 google.golang.org/grpc v1.16.0/go.mod h1:0JHn/cJsOMiMfNA9+DeHDlAU7KAAB5GDlYFpa9MZMio=

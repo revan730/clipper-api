@@ -3,7 +3,7 @@ module github.com/revan730/clipper-api
 require (
 	cloud.google.com/go v0.35.1 // indirect
 	dmitri.shuralyov.com/app/changes v0.0.0-20181114035150-5af16e21babb // indirect
-	dmitri.shuralyov.com/service/change v0.0.0-20190125044705-3bb9b99b3801 // indirect
+	dmitri.shuralyov.com/service/change v0.0.0-20190127173012-184eb3bb42b2 // indirect
 	git.apache.org/thrift.git v0.12.0 // indirect
 	github.com/Shopify/sarama v1.20.1 // indirect
 	github.com/auth0/go-jwt-middleware v0.0.0-20170425171159-5493cabe49f7
@@ -31,7 +31,7 @@ require (
 	github.com/prometheus/client_model v0.0.0-20190115171406-56726106282f // indirect
 	github.com/prometheus/common v0.1.0 // indirect
 	github.com/prometheus/procfs v0.0.0-20190117184657-bf6a532e95b1 // indirect
-	github.com/revan730/clipper-common v0.0.0-20190127141914-063d06706ce5
+	github.com/revan730/clipper-common v0.0.0-20190127193438-e47d377f8899
 	github.com/rs/cors v1.6.0
 	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/shurcooL/go v0.0.0-20190121191506-3fef8c783dec // indirect
@@ -67,7 +67,7 @@ require (
 	golang.org/x/perf v0.0.0-20190124201629-844a5f5b46f4 // indirect
 	golang.org/x/sys v0.0.0-20190124100055-b90733256f2e // indirect
 	golang.org/x/tools v0.0.0-20190125232054-d66bd3c5d5a6 // indirect
-	google.golang.org/genproto v0.0.0-20190123001331-8819c946db44 // indirect
+	google.golang.org/genproto v0.0.0-20190127191240-7cdc0b958d75 // indirect
 	google.golang.org/grpc v1.18.0
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	honnef.co/go/tools v0.0.0-20190125135159-8e66885c52b0 // indirect

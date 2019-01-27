@@ -233,7 +233,7 @@ func RevisionArrayMsgFromProto(r *commonTypes.RevisionsArray) (*RevisionArrayMes
 		}
 		revisionArray.Revisions = append(revisionArray.Revisions, revisionMsg)
 	}
-
+	revisionArray.Total = r.Total
 	return revisionArray, nil
 }
 
