@@ -31,7 +31,7 @@ require (
 	github.com/prometheus/client_model v0.0.0-20190115171406-56726106282f // indirect
 	github.com/prometheus/common v0.1.0 // indirect
 	github.com/prometheus/procfs v0.0.0-20190117184657-bf6a532e95b1 // indirect
-	github.com/revan730/clipper-common v0.0.0-20190126205252-e85b078382ea
+	github.com/revan730/clipper-common v0.0.0-20190127141914-063d06706ce5
 	github.com/rs/cors v1.6.0
 	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/shurcooL/go v0.0.0-20190121191506-3fef8c783dec // indirect
@@ -41,7 +41,7 @@ require (
 	github.com/shurcooL/home v0.0.0-20190120230144-cf17a69b0cc5 // indirect
 	github.com/shurcooL/htmlg v0.0.0-20190120222857-1e8a37b806f3 // indirect
 	github.com/shurcooL/httpfs v0.0.0-20181222201310-74dc9339e414 // indirect
-	github.com/shurcooL/issues v0.0.0-20190119024938-0d39520a96b7 // indirect
+	github.com/shurcooL/issues v0.0.0-20190120000219-08d8dadf8acb // indirect
 	github.com/shurcooL/issuesapp v0.0.0-20181229001453-b8198a402c58 // indirect
 	github.com/shurcooL/notifications v0.0.0-20181111060504-bcc2b3082a7a // indirect
 	github.com/shurcooL/octicon v0.0.0-20181222203144-9ff1a4cf27f4 // indirect

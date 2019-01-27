@@ -95,6 +95,8 @@ func (s *Server) Routes() *Server {
 			admin.POST("deployments/:id/image", s.changeDeploymentImageHandler)
 			admin.POST("deployments/:id/scale", s.scaleDeploymentHandler)
 			admin.POST("deployments/:id/manifest", s.updateManifestHandler)
+			// Revisions
+			admin.GET("deployments/:id/revisions", s.getRevisionsHandler)
 		}
 
 	}

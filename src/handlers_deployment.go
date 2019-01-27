@@ -50,7 +50,7 @@ func (s *Server) getDeploymentHandler(c *gin.Context) {
 }
 
 func (s *Server) getAllDeploymentsHandler(c *gin.Context) {
-	params := &types.DeploymentsQueryParams{
+	params := &types.PaginationQueryParams{
 		Page:   1,
 		Limit:  20,
 	}

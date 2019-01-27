@@ -41,7 +41,7 @@ func (c *CDClient) GetDeployment(deploymentID int64) (*commonTypes.Deployment, e
 	return c.gClient.GetDeployment(context.Background(), protoMsg)
 }
 
-func (c *CDClient) GetAllDeployments(params types.DeploymentsQueryParams) (*commonTypes.DeploymentsArray, error) {
+func (c *CDClient) GetAllDeployments(params types.PaginationQueryParams) (*commonTypes.DeploymentsArray, error) {
 	return c.gClient.GetAllDeployments(context.Background(),
 	&commonTypes.DeploymentsQuery{
 		Page:   int64(params.Page),
@@ -73,4 +73,13 @@ func (c *CDClient) UpdateManifest(d *types.DeploymentMessage) error {
 	protoMsg := types.ProtoFromDeploymentMsg(d)
 	_, err := c.gClient.UpdateManifest(context.Background(), protoMsg)
 	return err
+}
+
+func (c *CDClient) GetRevisions(deploymentID int64, params types.PaginationQueryParams) (*commonTypes.RevisionsArray, error) {
+	return c.gClient.GetRevisions(context.Background(),
+	&commonTypes.RevisionsQuery{
+		DeploymentID: deploymentID,
+		Page:   int64(params.Page),
+		Limit:  int64(params.Limit),
+	})
 }

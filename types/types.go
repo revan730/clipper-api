@@ -163,7 +163,7 @@ type BuildsQueryParams struct {
 	Limit  int    `form:"limit"`
 }
 
-type DeploymentsQueryParams struct {
+type PaginationQueryParams struct {
 	Page  int `form:"page"`
 	Limit int `form:"limit"`
 }
@@ -191,6 +191,50 @@ func DeploymentArrayMsgFromProto(d *commonTypes.DeploymentsArray) (*DeploymentAr
 	}
 
 	return depsArray, nil
+}
+
+type RevisionMessage struct {
+	ID           int64     `json:"ID"`
+	DeploymentID int64     `json:"deploymentID"`
+	ArtifactID   int64     `json:"artifactID"`
+	Date         time.Time `json:"date"`
+	Stdout       string    `json:"stdout"`
+	Replicas     int64     `json:"replicas"`
+}
+
+type RevisionArrayMessage struct {
+	Total     int64              `json:"total"`
+	Revisions []*RevisionMessage `json:"revisions"`
+}
+
+func RevisionMsgFromProto(r *commonTypes.Revision) (*RevisionMessage, error) {
+	date, err := ptypes.Timestamp(r.Date)
+	if err != nil {
+		return nil, err
+	}
+	revisionMsg := &RevisionMessage{
+		ID:           r.ID,
+		DeploymentID: r.DeploymentID,
+		ArtifactID:   r.ArtifactID,
+		Date:         date,
+		Replicas:     r.Replicas,
+		Stdout:       r.Stdout,
+	}
+	return revisionMsg, nil
+}
+
+func RevisionArrayMsgFromProto(r *commonTypes.RevisionsArray) (*RevisionArrayMessage, error) {
+	revisionArray := &RevisionArrayMessage{}
+
+	for _, revision := range r.Revisions {
+		revisionMsg, err := RevisionMsgFromProto(revision)
+		if err != nil {
+			return nil, err
+		}
+		revisionArray.Revisions = append(revisionArray.Revisions, revisionMsg)
+	}
+
+	return revisionArray, nil
 }
 
 type ImageMessage struct {
