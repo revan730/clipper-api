@@ -20,6 +20,7 @@ type DatabaseClient interface {
 	FindRepoByID(repoID int64) (*types.GithubRepo, error)
 	DeleteRepoByID(repoID int64) error
 	FindAllUserRepos(userID int64, q url.Values) ([]types.GithubRepo, error)
+	FindAllUserReposCount(userID int64) (int64, error)
 	CreateBranchConfig(c *types.BranchConfig) error
 	FindBranchConfig(repoID int64, branch string) (*types.BranchConfig, error)
 	DeleteBranchConfig(repoID int64, branch string) error

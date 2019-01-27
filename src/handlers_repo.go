@@ -84,7 +84,13 @@ func (s *Server) getAllReposHandler(c *gin.Context) {
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"repos": repos})
+	count, err := s.databaseClient.FindAllUserReposCount(userClaim.ID)
+	if err != nil {
+		s.log.Error("Find repos count error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"repos": repos, "total": count})
 }
 
 func (s *Server) deleteRepoHandler(c *gin.Context) {
