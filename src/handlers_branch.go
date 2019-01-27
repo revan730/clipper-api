@@ -110,7 +110,13 @@ func (s *Server) getAllBranchConfigsHandler(c *gin.Context) {
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"configs": configs})
+	count, err := s.databaseClient.FindAllBranchConfigsCount(repo.ID)
+	if err != nil {
+		s.log.Error("Find branch configs count error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"configs": configs, "total": count})
 }
 
 func (s *Server) deleteBranchConfigHandler(c *gin.Context) {

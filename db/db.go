@@ -25,4 +25,5 @@ type DatabaseClient interface {
 	DeleteBranchConfig(repoID int64, branch string) error
 	DeleteBranchConfigByID(configID int64) error
 	FindAllBranchConfigs(repoID int64, q url.Values) ([]types.BranchConfig, error)
+	FindAllBranchConfigsCount(repoID int64) (int64, error)
 }

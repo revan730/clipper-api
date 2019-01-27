@@ -78,8 +78,8 @@ func (s *Server) Routes() *Server {
 		authorized.POST("repos/:id/branch", s.postBranchConfigHandler)
 		authorized.GET("repos/:id/branch", s.getAllBranchConfigsHandler)
 		authorized.DELETE("repos/:id/branch/:branch", s.deleteBranchConfigHandler)
-		authorized.GET("repos/:id/builds", s.getAllBuildsHandler)
 		// Builds
+		authorized.GET("repos/:id/builds", s.getAllBuildsHandler)
 		authorized.GET("builds/:id", s.getBuildHandler)
 		// Build artifacts
 		authorized.GET("builds/:id/artifact", s.getBuildArtifactHandler)

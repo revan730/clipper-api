@@ -256,3 +256,11 @@ func (d *PostgresClient) FindAllBranchConfigs(repoID int64, q url.Values) ([]typ
 
 	return configs, err
 }
+
+func (d *PostgresClient) FindAllBranchConfigsCount(repoID int64) (int64, error) {
+	count, err := d.pg.Model(&types.BranchConfig{}).
+			   Where("github_repo_id = ?", repoID).
+			   Count()
+
+	return int64(count), err
+}
