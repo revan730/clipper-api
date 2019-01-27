@@ -31,7 +31,7 @@ require (
 	github.com/prometheus/client_model v0.0.0-20190115171406-56726106282f // indirect
 	github.com/prometheus/common v0.1.0 // indirect
 	github.com/prometheus/procfs v0.0.0-20190117184657-bf6a532e95b1 // indirect
-	github.com/revan730/clipper-common v0.0.0-20190127193438-e47d377f8899
+	github.com/revan730/clipper-common v0.0.0-20190127200444-b6f50817a070
 	github.com/rs/cors v1.6.0
 	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/shurcooL/go v0.0.0-20190121191506-3fef8c783dec // indirect

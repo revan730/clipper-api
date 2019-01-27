@@ -179,6 +179,7 @@ type DeploymentMessage struct {
 }
 
 type DeploymentArrayMessage struct {
+	Total     int64              `json:"total"`
 	Deployments []*DeploymentMessage `json:"deployments"`
 }
 
@@ -189,7 +190,7 @@ func DeploymentArrayMsgFromProto(d *commonTypes.DeploymentsArray) (*DeploymentAr
 		depMsg := DeploymentMsgFromProto(dep)
 		depsArray.Deployments = append(depsArray.Deployments, depMsg)
 	}
-
+	depsArray.Total = d.Total
 	return depsArray, nil
 }
 
