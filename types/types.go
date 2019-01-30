@@ -39,7 +39,7 @@ type BranchConfig struct {
 	GithubRepoID int64       `json:"-" pg:",fk" sql:"on_delete:CASCADE"`
 	GithubRepo   *GithubRepo `json:"-"`
 	Branch       string      `json:"branch"`
-	IsCiEnabled  bool        `json:"ci_enabled"`
+	IsCiEnabled  bool        `json:"ciEnabled"`
 }
 
 // CredentialsMessage is used for

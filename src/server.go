@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/cors"
+	"github.com/gin-contrib/cors"
 
 	"github.com/revan730/clipper-api/db"
 	"github.com/revan730/clipper-api/log"
@@ -57,6 +57,12 @@ func NewServer(logger log.Logger, config *types.Config) *Server {
 
 // Routes binds api routes to handlers
 func (s *Server) Routes() *Server {
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = []string{"Origin", "Authorization",
+	 "Content-Type",
+	}
+	s.router.Use(cors.New(corsConfig))
 	s.router.POST("/api/v1/login", s.loginHandler)
 	s.router.POST("/api/v1/register", s.registerHandler)
 
@@ -114,8 +120,7 @@ func (s *Server) Run() {
 		os.Exit(1)
 	}
 	s.log.Info(fmt.Sprintf("Starting server at port %d", s.config.Port))
-	corsRouter := cors.Default().Handler(s.router)
-	err = http.ListenAndServe(fmt.Sprintf(":%d", s.config.Port), corsRouter)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", s.config.Port), s.router)
 	if err != nil {
 		s.log.Error("Server failed", err)
 		os.Exit(1)

@@ -9,6 +9,7 @@ require (
 	github.com/auth0/go-jwt-middleware v0.0.0-20170425171159-5493cabe49f7
 	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gin-contrib/cors v0.0.0-20190101123304-5e7acb10687f
 	github.com/gin-contrib/sse v0.0.0-20190125020943-a7658810eb74 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
@@ -24,7 +25,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.7.0 // indirect
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/kisielk/godepgraph v0.0.0-20181003180210-9a9a3d47fba3 // indirect
-	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.2 // indirect
 	github.com/openzipkin/zipkin-go v0.1.5 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
@@ -69,7 +69,6 @@ require (
 	golang.org/x/tools v0.0.0-20190125232054-d66bd3c5d5a6 // indirect
 	google.golang.org/genproto v0.0.0-20190127191240-7cdc0b958d75 // indirect
 	google.golang.org/grpc v1.18.0
-	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	honnef.co/go/tools v0.0.0-20190125135159-8e66885c52b0 // indirect
 	sourcegraph.com/sqs/pbtypes v1.0.0 // indirect
 )
