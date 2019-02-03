@@ -76,21 +76,55 @@ func (s *Server) getRepoHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, repo)
 }
 
-func (s *Server) getAllReposHandler(c *gin.Context) {
-	userClaim := c.MustGet("userClaim").(types.User)
-	repos, err := s.databaseClient.FindAllUserRepos(userClaim.ID, c.Request.URL.Query())
+func (s *Server) getAllRepos(c *gin.Context) (*types.RepoArrayMessage) {
+	repos, err := s.databaseClient.FindAllRepos(c.Request.URL.Query())
 	if err != nil {
 		s.log.Error("Find repos error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
-		return
+		return nil
 	}
-	count, err := s.databaseClient.FindAllUserReposCount(userClaim.ID)
+	count, err := s.databaseClient.FindAllReposCount()
 	if err != nil {
 		s.log.Error("Find repos count error", err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
-		return
+		return nil
 	}
-	c.JSON(http.StatusOK, gin.H{"repos": repos, "total": count})
+	return &types.RepoArrayMessage{
+		Total: count,
+		Repos: repos,
+	}
+}
+
+func (s *Server) getAllUserRepos(userID int64, c *gin.Context) (*types.RepoArrayMessage) {
+	repos, err := s.databaseClient.FindAllUserRepos(userID, c.Request.URL.Query())
+	if err != nil {
+		s.log.Error("Find repos error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return nil
+	}
+	count, err := s.databaseClient.FindAllUserReposCount(userID)
+	if err != nil {
+		s.log.Error("Find repos count error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return nil
+	}
+	return &types.RepoArrayMessage{
+		Total: count,
+		Repos: repos,
+	}
+}
+
+func (s *Server) getAllReposHandler(c *gin.Context) {
+	userClaim := c.MustGet("userClaim").(types.User)
+	var reposMsg *types.RepoArrayMessage
+	if userClaim.IsAdmin == true {
+		reposMsg = s.getAllRepos(c)
+	} else {
+		reposMsg = s.getAllUserRepos(userClaim.ID, c)
+	}
+	if reposMsg != nil {
+		c.JSON(http.StatusOK, reposMsg)
+	}
 }
 
 func (s *Server) deleteRepoHandler(c *gin.Context) {

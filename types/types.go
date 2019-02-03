@@ -33,6 +33,11 @@ type GithubRepo struct {
 	User     *User  `json:"-"`
 }
 
+type RepoArrayMessage struct {
+	Total int64        `json:"total"`
+	Repos []GithubRepo `json:"repos"`
+}
+
 // BranchConfig sets CI configuration for specific branch of repo
 type BranchConfig struct {
 	ID           int64       `json:"-"`

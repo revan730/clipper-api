@@ -209,6 +209,24 @@ func (d *PostgresClient) FindAllUserReposCount(userID int64) (int64, error) {
     return int64(count), err
 }
 
+func (d *PostgresClient) FindAllRepos(q url.Values) ([]types.GithubRepo, error) {
+	var repos []types.GithubRepo
+	vals := urlvalues.Values(q)
+
+	err := d.pg.Model(&repos).
+		Apply(urlvalues.Pagination(vals)).
+		Select()
+
+	return repos, err
+}
+
+func (d *PostgresClient) FindAllReposCount() (int64, error) {
+	count, err := d.pg.Model(&types.GithubRepo{}).
+	Count()
+
+    return int64(count), err
+}
+
 // CreateBranchConfig creates repo branch config from provided struct
 func (d *PostgresClient) CreateBranchConfig(c *types.BranchConfig) error {
 	return d.pg.Insert(c)
