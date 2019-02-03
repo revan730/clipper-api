@@ -46,3 +46,12 @@ func (c *CIClient) GetAllBuilds(repoID int64, params types.BuildsQueryParams) (*
 			Limit:  int64(params.Limit),
 		})
 }
+
+func (c *CIClient) GetAllArtifacts(repoID int64, params types.BuildsQueryParams) (*commonTypes.ArtifactsArray, error) {
+	return c.gClient.GetAllArtifacts(context.Background(),
+	&commonTypes.BuildsQuery{RepoID: repoID,
+		Branch: params.Branch,
+		Page:   int64(params.Page),
+		Limit:  int64(params.Limit),
+	})
+}

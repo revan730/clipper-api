@@ -154,6 +154,37 @@ func BuildArrayMsgFromProto(b *commonTypes.BuildsArray) (*BuildArrayMessage, err
 	return buildArray, nil
 }
 
+type ArtifactMessage struct {
+	ID      int64  `json:"id"`
+	BuildID int64  `json:"buildID"`
+	Name    string `json:"name"`
+}
+
+type ArtifactArrayMessage struct {
+	Total     int64              `json:total"`
+	Artifacts []*ArtifactMessage `json:"artifacts"`
+}
+
+func ArtifactMsgFromProto(a *commonTypes.BuildArtifact) *ArtifactMessage {
+	artifactMsg := &ArtifactMessage{
+		ID:      a.ID,
+		BuildID: a.BuildID,
+		Name:    a.Name,
+	}
+	return artifactMsg
+}
+
+func ArtifactArrayMsgFromProto(a *commonTypes.ArtifactsArray) *ArtifactArrayMessage {
+	artifactArray := &ArtifactArrayMessage{}
+
+	for _, artifact := range a.Artifacts {
+		artifactMsg := ArtifactMsgFromProto(artifact)
+		artifactArray.Artifacts = append(artifactArray.Artifacts, artifactMsg)
+	}
+	artifactArray.Total = a.Total
+	return artifactArray
+}
+
 type PGClientConfig struct {
 	DBAddr        string
 	DB            string

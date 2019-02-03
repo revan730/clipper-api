@@ -89,6 +89,7 @@ func (s *Server) Routes() *Server {
 		authorized.GET("builds/:id", s.getBuildHandler)
 		// Build artifacts
 		authorized.GET("builds/:id/artifact", s.getBuildArtifactHandler)
+		authorized.GET("repos/:id/artifacts", s.getAllArtifactsHandler)
 
 		admin := authorized.Group("admin")
 		admin.Use(s.userIsAdminMiddleware)
