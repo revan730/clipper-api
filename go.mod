@@ -7,7 +7,7 @@ require (
 	git.apache.org/thrift.git v0.12.0 // indirect
 	github.com/Shopify/sarama v1.20.1 // indirect
 	github.com/auth0/go-jwt-middleware v0.0.0-20170425171159-5493cabe49f7
-	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect
+	github.com/coreos/go-systemd v0.0.0-20190204112023-081494f7ee4f // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v0.0.0-20190101123304-5e7acb10687f
 	github.com/gin-contrib/sse v0.0.0-20190125020943-a7658810eb74 // indirect
@@ -31,15 +31,15 @@ require (
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90 // indirect
 	github.com/prometheus/common v0.2.0 // indirect
-	github.com/prometheus/procfs v0.0.0-20190129233650-316cf8ccfec5 // indirect
-	github.com/revan730/clipper-common v0.0.0-20190203171329-af1caab8fc3c
+	github.com/prometheus/procfs v0.0.0-20190203183350-488faf799f86 // indirect
+	github.com/revan730/clipper-common v0.0.0-20190204190451-3caaff7cf905
 	github.com/rs/cors v1.6.0
 	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/shurcooL/go v0.0.0-20190121191506-3fef8c783dec // indirect
 	github.com/shurcooL/gofontwoff v0.0.0-20181114050219-180f79e6909d // indirect
 	github.com/shurcooL/highlight_diff v0.0.0-20181222201841-111da2e7d480 // indirect
 	github.com/shurcooL/highlight_go v0.0.0-20181215221002-9d8641ddf2e1 // indirect
-	github.com/shurcooL/home v0.0.0-20190127175526-fdd6870b8ab8 // indirect
+	github.com/shurcooL/home v0.0.0-20190204141146-5c8ae21d4240 // indirect
 	github.com/shurcooL/htmlg v0.0.0-20190120222857-1e8a37b806f3 // indirect
 	github.com/shurcooL/httpfs v0.0.0-20181222201310-74dc9339e414 // indirect
 	github.com/shurcooL/issues v0.0.0-20190120000219-08d8dadf8acb // indirect
@@ -66,8 +66,8 @@ require (
 	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3
 	golang.org/x/oauth2 v0.0.0-20190130055435-99b60b757ec1 // indirect
 	golang.org/x/perf v0.0.0-20190124201629-844a5f5b46f4 // indirect
-	golang.org/x/sys v0.0.0-20190203050204-7ae0202eb74c // indirect
-	golang.org/x/tools v0.0.0-20190202235157-7414d4c1f71c // indirect
+	golang.org/x/sys v0.0.0-20190204103248-980327fe3c65 // indirect
+	golang.org/x/tools v0.0.0-20190204173059-021ffbf1e960 // indirect
 	google.golang.org/genproto v0.0.0-20190201180003-4b09977fb922 // indirect
 	google.golang.org/grpc v1.18.0
 	honnef.co/go/tools v0.0.0-20190128043916-71123fcbb8fe // indirect

@@ -70,7 +70,7 @@ func (s *Server) getRepoHandler(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"err": "repo not found"})
 		return
 	}
-	if repo.UserID != userClaim.ID {
+	if repo.UserID != userClaim.ID && userClaim.IsAdmin == false {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": "you have no access to this repo"})
 	}
 	c.JSON(http.StatusOK, repo)
