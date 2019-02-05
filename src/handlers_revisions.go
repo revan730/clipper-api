@@ -58,5 +58,10 @@ func (s *Server) getRevisionHandler(c *gin.Context) {
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, rev)
+	revisionMsg, err := types.RevisionMsgFromProto(rev)
+	if err != nil {
+		s.log.Error("Failed to make revision message", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+	}
+	c.JSON(http.StatusOK, revisionMsg)
 }
