@@ -104,6 +104,7 @@ func (s *Server) Routes() *Server {
 			admin.POST("deployments/:id/manifest", s.updateManifestHandler)
 			// Revisions
 			admin.GET("deployments/:id/revisions", s.getRevisionsHandler)
+			admin.GET("revisions/:id", s.getRevisionHandler)
 		}
 
 	}

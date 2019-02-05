@@ -75,6 +75,13 @@ func (c *CDClient) UpdateManifest(d *types.DeploymentMessage) error {
 	return err
 }
 
+func (c *CDClient) GetRevision(revisionID int64) (*commonTypes.Revision, error) {
+	protoMsg := &commonTypes.Revision{
+		ID: revisionID,
+	}
+	return c.gClient.GetRevision(context.Background(), protoMsg)
+}
+
 func (c *CDClient) GetRevisions(deploymentID int64, params types.PaginationQueryParams) (*commonTypes.RevisionsArray, error) {
 	return c.gClient.GetRevisions(context.Background(),
 	&commonTypes.RevisionsQuery{

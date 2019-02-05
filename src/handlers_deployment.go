@@ -128,7 +128,7 @@ func (s *Server) scaleDeploymentHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "bad json"})
 		return
 	}
-	if scaleMsg.Replicas < 0 {
+	if scaleMsg.Replicas <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "replicas count must be more than 0"})
 		return
 	}

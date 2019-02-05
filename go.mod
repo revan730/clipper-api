@@ -32,7 +32,7 @@ require (
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90 // indirect
 	github.com/prometheus/common v0.2.0 // indirect
 	github.com/prometheus/procfs v0.0.0-20190203183350-488faf799f86 // indirect
-	github.com/revan730/clipper-common v0.0.0-20190204190451-3caaff7cf905
+	github.com/revan730/clipper-common v0.0.0-20190205180122-71eab6374203
 	github.com/rs/cors v1.6.0
 	github.com/russross/blackfriday v2.0.0+incompatible // indirect
 	github.com/shurcooL/go v0.0.0-20190121191506-3fef8c783dec // indirect
@@ -54,20 +54,20 @@ require (
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/streadway/amqp v0.0.0-20181205114330-a314942b2fd9
 	github.com/stretchr/testify v1.3.0 // indirect
-	github.com/ugorji/go/codec v0.0.0-20190128213124-ee1426cffec0 // indirect
+	github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43 // indirect
 	go.opencensus.io v0.19.0 // indirect
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1
 	go4.org v0.0.0-20181109185143-00e24f1b2599 // indirect
-	golang.org/x/build v0.0.0-20190201181641-63986c177d1f // indirect
+	golang.org/x/build v0.0.0-20190205044948-0fbf6af331f6 // indirect
 	golang.org/x/crypto v0.0.0-20190131182504-b8fe1690c613
 	golang.org/x/exp v0.0.0-20190125153040-c74c464bbbf2 // indirect
 	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3
 	golang.org/x/oauth2 v0.0.0-20190130055435-99b60b757ec1 // indirect
 	golang.org/x/perf v0.0.0-20190124201629-844a5f5b46f4 // indirect
-	golang.org/x/sys v0.0.0-20190204103248-980327fe3c65 // indirect
-	golang.org/x/tools v0.0.0-20190204173059-021ffbf1e960 // indirect
+	golang.org/x/sys v0.0.0-20190204203706-41f3e6584952 // indirect
+	golang.org/x/tools v0.0.0-20190205181801-90c8b4f75bb8 // indirect
 	google.golang.org/genproto v0.0.0-20190201180003-4b09977fb922 // indirect
 	google.golang.org/grpc v1.18.0
 	honnef.co/go/tools v0.0.0-20190128043916-71123fcbb8fe // indirect
