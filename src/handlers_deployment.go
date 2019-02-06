@@ -13,7 +13,6 @@ func (s *Server) postDeploymentHandler(c *gin.Context) {
 	deploymentMsg := &types.DeploymentMessage{}
 	bound := s.bindJSON(c, deploymentMsg)
 	if bound != true {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "bad json"})
 		return
 	}
 	// TODO: Check if repo and artifact belongs to user
@@ -99,7 +98,6 @@ func (s *Server) changeDeploymentImageHandler(c *gin.Context) {
 	imageMsg := &types.ImageMessage{}
 	bound := s.bindJSON(c, imageMsg)
 	if bound != true {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "bad json"})
 		return
 	}
 	rpcMsg := &types.DeploymentMessage{
@@ -125,7 +123,6 @@ func (s *Server) scaleDeploymentHandler(c *gin.Context) {
 	scaleMsg := &types.ScaleMessage{}
 	bound := s.bindJSON(c, scaleMsg)
 	if bound != true {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "bad json"})
 		return
 	}
 	if scaleMsg.Replicas <= 0 {
@@ -155,7 +152,6 @@ func (s *Server) updateManifestHandler(c *gin.Context) {
 	manifestMsg := &types.ManifestMessage{}
 	bound := s.bindJSON(c, manifestMsg)
 	if bound != true {
-		c.JSON(http.StatusBadRequest, gin.H{"err": "bad json"})
 		return
 	}
 	if manifestMsg.Manifest == "" {
