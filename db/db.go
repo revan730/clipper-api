@@ -14,6 +14,9 @@ type DatabaseClient interface {
 	SaveUser(user *types.User) error
 	FindUser(login string) (*types.User, error)
 	FindUserByID(userID int64) (*types.User, error)
+	FindAllUsers(q url.Values) ([]types.User, error)
+	FindAllUsersCount() (int64, error)
+	ChangeUserAdminStatus(userID int64, isAdmin bool) error
 	CreateRepo(fullName string, userID int64) error
 	SaveRepo(repo *types.GithubRepo) error
 	FindRepoByName(fullName string) (*types.GithubRepo, error)

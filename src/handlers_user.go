@@ -2,6 +2,7 @@ package src
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -137,4 +138,47 @@ func (s *Server) setAccessTokenHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"err": nil})
+}
+
+func (s *Server) getAllUsersHandler(c *gin.Context) {
+	users, err := s.databaseClient.FindAllUsers(c.Request.URL.Query())
+	if err != nil {
+		s.log.Error("Find all users error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	count, err := s.databaseClient.FindAllUsersCount()
+	if err != nil {
+		s.log.Error("Find all users count error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	usersMsg := &types.UsersArrayMessage{
+		Total: count,
+		Users: users,
+	}
+
+	c.JSON(http.StatusOK, usersMsg)
+}
+
+func (s *Server) changeUserAdminHandler(c *gin.Context) {
+	userIDStr := c.Param("id")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": "user id is not int"})
+		return
+	}
+	userAdminMsg := &types.UserAdminMessage{}
+	bound := s.bindJSON(c, userAdminMsg)
+	if bound != true {
+		return
+	}
+
+	err = s.databaseClient.ChangeUserAdminStatus(userID, userAdminMsg.IsAdmin)
+	if err != nil {
+		s.log.Error("Change user admin status error", err)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

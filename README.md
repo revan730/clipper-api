@@ -18,7 +18,7 @@ Call api binary with `start` argument and next parameters.
 |-----------------------|-----------------------------------|-----------------------------------------------------------|
 | --port (-p)           | 8080                              | Application port                                          |
 | --rabbitmq (-r)       | amqp://guest:guest@localhost:5672 | rabbitmq connection URL                                   |
-| --postgresAddr (-a)   | postgres:5432                     | PostgreSQL address                                        |
+| --dbAddr (-a)         | postgres:5432                     | PostgreSQL address                                        |
 | --db (-d)             | clipper                           | PostgreSQL database to use                                |
 | --user (-u)           | clipper                           | PostgreSQL database user                                  |
 | --pass (-c)           | clipper                           | PostgreSQL user's password                                |

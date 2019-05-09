@@ -10,10 +10,10 @@ import (
 
 // User represents system's user
 type User struct {
-	ID            int64  `json:"-"`
-	Login         string `sql:",unique" json:"-"`
+	ID            int64  `json:"id"`
+	Login         string `sql:",unique" json:"login"`
 	Password      string `json:"-"`
-	IsAdmin       bool   `json:"-" sql:"default:false"`
+	IsAdmin       bool   `json:"admin" sql:"default:false"`
 	WebhookSecret string `json:"-" sql:"default:''"`
 	AccessToken   string `json:"-" sql:"default:''"`
 }
@@ -309,4 +309,13 @@ func ProtoFromDeploymentMsg(d *DeploymentMessage) *commonTypes.Deployment {
 		Manifest:   d.Manifest,
 		Replicas:   d.Replicas,
 	}
+}
+
+type UsersArrayMessage struct {
+	Total int64  `json:"total"`
+	Users []User `json:"users"`
+}
+
+type UserAdminMessage struct {
+	IsAdmin bool `json:"admin"`
 }

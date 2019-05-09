@@ -94,6 +94,9 @@ func (s *Server) Routes() *Server {
 		admin := authorized.Group("admin")
 		admin.Use(s.userIsAdminMiddleware)
 		{
+			// User control
+			admin.GET("user", s.getAllUsersHandler)
+			admin.POST("user/:id/admin", s.changeUserAdminHandler)
 			// Deployments
 			admin.GET("deployments", s.getAllDeploymentsHandler)
 			admin.POST("deployments",s.postDeploymentHandler)

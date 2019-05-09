@@ -4,8 +4,8 @@ import (
 	"net/url"
 
 	"github.com/go-pg/pg"
-	"github.com/go-pg/pg/urlvalues"
 	"github.com/go-pg/pg/orm"
+	"github.com/go-pg/pg/urlvalues"
 	"github.com/revan730/clipper-api/types"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -129,6 +129,34 @@ func (d *PostgresClient) FindUserByID(userID int64) (*types.User, error) {
 	return user, nil
 }
 
+// FindAllUsers finds all users in database
+// with pagination support (by passing query params of request)
+func (d *PostgresClient) FindAllUsers(q url.Values) ([]types.User, error) {
+	var users []types.User
+	vals := urlvalues.Values(q)
+
+	err := d.pg.Model(&users).
+		Apply(urlvalues.Pagination(vals)).
+		Select()
+
+	return users, err
+}
+
+// FindAllUsersCount returns count of all users in database
+func (d *PostgresClient) FindAllUsersCount() (int64, error) {
+	count, err := d.pg.Model(&types.User{}).
+		Count()
+
+	return int64(count), err
+}
+
+func (d *PostgresClient) ChangeUserAdminStatus(userID int64, isAdmin bool) error {
+	_, err := d.pg.Model(&types.User{}).Set("is_admin = ?", isAdmin).
+		Where("id = ?", userID).Update()
+
+	return err
+}
+
 // CreateRepo creates github repo record with provided full name and owner id
 func (d *PostgresClient) CreateRepo(fullName string, userID int64) error {
 	repo := &types.GithubRepo{
@@ -203,10 +231,10 @@ func (d *PostgresClient) FindAllUserRepos(userID int64, q url.Values) ([]types.G
 
 func (d *PostgresClient) FindAllUserReposCount(userID int64) (int64, error) {
 	count, err := d.pg.Model(&types.GithubRepo{}).
-	Where("user_id = ?", userID).
-	Count()
+		Where("user_id = ?", userID).
+		Count()
 
-    return int64(count), err
+	return int64(count), err
 }
 
 func (d *PostgresClient) FindAllRepos(q url.Values) ([]types.GithubRepo, error) {
@@ -222,9 +250,9 @@ func (d *PostgresClient) FindAllRepos(q url.Values) ([]types.GithubRepo, error) 
 
 func (d *PostgresClient) FindAllReposCount() (int64, error) {
 	count, err := d.pg.Model(&types.GithubRepo{}).
-	Count()
+		Count()
 
-    return int64(count), err
+	return int64(count), err
 }
 
 // CreateBranchConfig creates repo branch config from provided struct
@@ -285,8 +313,8 @@ func (d *PostgresClient) FindAllBranchConfigs(repoID int64, q url.Values) ([]typ
 
 func (d *PostgresClient) FindAllBranchConfigsCount(repoID int64) (int64, error) {
 	count, err := d.pg.Model(&types.BranchConfig{}).
-			   Where("github_repo_id = ?", repoID).
-			   Count()
+		Where("github_repo_id = ?", repoID).
+		Count()
 
 	return int64(count), err
 }
