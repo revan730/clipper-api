@@ -181,4 +181,6 @@ func (s *Server) changeUserAdminHandler(c *gin.Context) {
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{"err": nil})
 }
